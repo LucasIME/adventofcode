@@ -1,17 +1,18 @@
 from collections import defaultdict
-import heapq
 
 def correct_error(matrix):
     resp = []
     for col in range(len(matrix[0])):
         d = defaultdict(int)
-        h = []
+        mincount = float('inf')
+        least_frequent_letter = ''
         for row in range(len(matrix)):
             c = matrix[row][col]
             d[c] += 1
         for letter, count in d.items():
-            heapq.heappush(h, (count, letter))
-        least_frequent_letter = heapq.heappop(h)[1]
+            if count <= mincount:
+                least_frequent_letter = letter
+                mincount = count
         resp.append(least_frequent_letter)
     return ''.join(resp)
 
