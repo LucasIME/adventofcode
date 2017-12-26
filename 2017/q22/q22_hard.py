@@ -5,11 +5,18 @@ DIR = {
     'DOWN': 3
 }
 
+STATUS = {
+    '.': 0,
+    'W': 1,
+    '#': 2,
+    'F': 3
+}
+
 def build_map(entry):
     map = {}
     for y, line in enumerate(entry):
         for x, item in enumerate(line):
-            map[(x, y)] = item
+            map[(x, y)] = STATUS[item]
     return map
 
 def move(x, y, dir):
@@ -24,21 +31,14 @@ def move(x, y, dir):
 
 def burst(x, y, dir, map):
     state = get_state(x, y, map)
-    if state == '.':
+    if state == STATUS['.']:
         dir = (dir - 1)%4
-    elif state == '#':
+    elif state == STATUS['#']:
         dir = (dir + 1)%4
-    elif state == 'F':
+    elif state == STATUS['F']:
         dir = (dir + 2)%4
 
-    if state == '.':
-        map[(x, y)] = 'W'
-    elif state == 'W':
-        map[(x, y)] = '#'
-    elif state == '#':
-        map[(x, y)] = 'F'
-    elif state == 'F':
-        map[(x, y)] = '.'
+    map[(x, y)] = (state+1)%4
 
     x, y = move(x, y, dir)
 
@@ -47,7 +47,7 @@ def burst(x, y, dir, map):
 def get_state(x, y, map):
     if (x, y) in map:
         return map[(x, y)]
-    return '.'
+    return 0
 
 def count_burts(entry, count):
     map = build_map(entry)
@@ -60,7 +60,7 @@ def count_burts(entry, count):
         last_x, last_y = x, y
         x, y, dir = burst(x, y, dir, map)
         new = get_state(last_x, last_y, map)
-        if new == '#' and old != '#':
+        if new == STATUS['#'] and old != STATUS['#']:
             resp += 1
     return resp
 
