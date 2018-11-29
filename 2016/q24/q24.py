@@ -33,7 +33,6 @@ def get_dist_to_other_nodes(maze, row, col):
     visited = set()
     while queue:
         r, c, dist = queue.pop()
-        print(r, c, dist, maze[row][col])
         if (r,c) in visited:
             continue
         symbol = maze[r][c]
