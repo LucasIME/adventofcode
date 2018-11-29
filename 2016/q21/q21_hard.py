@@ -34,6 +34,16 @@ def move(password, x, y):
     t_string.insert(y, c)
     return ''.join(t_string)
 
+# assumes operation is uniquely reversible for that length
+def gen_reverse_table_for_len(length):
+    rev_table = {}
+    for i in range(length):
+        steps = i + 1
+        steps = steps + 1 if i >=4 else steps
+        final = (i + steps) % length
+        rev_table[final] = i
+    return rev_table
+
 def exec_reversed(command, password):
     name = command[0]
     if name == 'swap':
@@ -61,23 +71,9 @@ def exec_reversed(command, password):
         elif target == 'based':
             letter = command[-1]
             letter_index = password.find(letter)
-            #hack hack
-            if letter_index == 0:
-                return rotate(password, -1)
-            if letter_index == 1:
-                return rotate(password, -1)
-            if letter_index == 2:
-                return rotate(password, 2)
-            if letter_index == 3:
-                return rotate(password, -2)
-            if letter_index == 4:
-                return rotate(password, 1)
-            if letter_index == 5:
-                return rotate(password, -3)
-            if letter_index == 6:
-                return password
-            if letter_index == 7:
-                return rotate(password, 4)
+            rev_table = gen_reverse_table_for_len(len(password))
+            orig_index = rev_table[letter_index]
+            return rotate(password, orig_index - letter_index)
 
     elif name == 'reverse':
         x, y = int(command[2]), int(command[-1])
