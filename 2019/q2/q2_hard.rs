@@ -1,36 +1,36 @@
 use std::io;
 use std::io::BufRead;
 
-fn process_op_codes(opcodes: &mut Vec<i32>) -> &mut Vec<i32> {
+fn process_op_codes(opcodes: &mut Vec<usize>) -> &mut Vec<usize> {
     let mut cur_pos = 0;
     while cur_pos < opcodes.len() {
         match opcodes[cur_pos] {
             1 => {
-                let sum = opcodes[opcodes[cur_pos+1] as usize] + opcodes[opcodes[cur_pos+2] as usize];
-                let pos_to_change = opcodes[cur_pos as usize + 3];
-                opcodes[pos_to_change as usize] = sum;
-            },
-            2 => {
-                let mul = opcodes[opcodes[cur_pos+1] as usize] * opcodes[opcodes[cur_pos+2] as usize];
+                let sum = opcodes[opcodes[cur_pos + 1]] + opcodes[opcodes[cur_pos + 2]];
                 let pos_to_change = opcodes[cur_pos + 3];
-                opcodes[pos_to_change as usize] = mul;
-
-            },
+                opcodes[pos_to_change] = sum;
+            }
+            2 => {
+                let mul = opcodes[opcodes[cur_pos + 1]] * opcodes[opcodes[cur_pos + 2]];
+                let pos_to_change = opcodes[cur_pos + 3];
+                opcodes[pos_to_change] = mul;
+            }
             99 => break,
-            _ => println!("error!")
+            _ => println!("error!"),
         }
         cur_pos += 4;
     }
-    return opcodes
+    return opcodes;
 }
 
-fn parse(input: String) -> Vec<i32> {
-    return input.split(",")
-        .map(|x|x.parse::<i32>().unwrap())
+fn parse(input: String) -> Vec<usize> {
+    return input
+        .split(",")
+        .map(|x| x.parse::<usize>().unwrap())
         .collect();
 }
 
-fn find_input_pair_for_output(opcodes: &Vec<i32>, target: i32, response: &mut Vec<i32>) {
+fn find_input_pair_for_output(opcodes: &Vec<usize>, target: usize, response: &mut Vec<usize>) {
     for noun in 0..100 {
         for verb in 0..100 {
             let mut candidate_array = opcodes.clone();
@@ -63,9 +63,9 @@ fn read_line() -> String {
     return io::stdin()
         .lock()
         .lines()
-        .map(|res|res.ok())
-        .filter(|x|x.is_some())
-        .map(|x|x.unwrap())
+        .map(|res| res.ok())
+        .filter(|x| x.is_some())
+        .map(|x| x.unwrap())
         .next()
         .unwrap();
 }
