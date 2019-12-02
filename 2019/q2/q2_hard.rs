@@ -30,7 +30,7 @@ fn parse(input: String) -> Vec<usize> {
         .collect();
 }
 
-fn find_input_pair_for_output(opcodes: &Vec<usize>, target: usize, response: &mut Vec<usize>) {
+fn find_input_pair_for_output(opcodes: &Vec<usize>, target: usize) -> Option<Vec<usize>> {
     for noun in 0..100 {
         for verb in 0..100 {
             let mut candidate_array = opcodes.clone();
@@ -40,21 +40,20 @@ fn find_input_pair_for_output(opcodes: &Vec<usize>, target: usize, response: &mu
             let result = process_op_codes(&mut candidate_array);
 
             if result[0] == target {
-                *response = result.to_vec();
-                return;
+                return Some(result.to_vec());
             }
         }
     }
 
     println!("Didn't find array for target");
+    return None;
 }
 
 fn main() {
     let input = read_line();
     let op_array = parse(input);
 
-    let mut result = vec![];
-    find_input_pair_for_output(&op_array, 19690720, &mut result);
+    let result = find_input_pair_for_output(&op_array, 19690720).unwrap();
 
     println!("{:?}", 100 * result[1] + result[2]);
 }
