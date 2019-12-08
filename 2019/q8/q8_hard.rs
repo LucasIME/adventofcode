@@ -5,14 +5,13 @@ use std::iter::FromIterator;
 fn merge_layers(layers: Vec<&[u32]>) -> Vec<u32> {
     let mut accumulated_layer: Vec<u32> = (0..layers[0].len()).map(|_| 2).collect();
 
-    for layer in layers {
-        let layer_len = layer.len();
-        for i in 0..layer_len {
+    layers.iter().for_each(|layer| {
+        layer.iter().enumerate().for_each(|(i, v)| {
             if accumulated_layer[i] == 2 {
-                accumulated_layer[i] = layer[i];
+                accumulated_layer[i] = *v;
             }
-        }
-    }
+        })
+    });
 
     return accumulated_layer;
 }
@@ -22,7 +21,7 @@ fn layer_to_img_str(layer: Vec<u32>, width: usize) -> String {
         .iter()
         .map(|digit| {
             match digit {
-                0 => " ", // Mapping black to blank space to make reading easier.
+                0 => " ",        // Mapping black to blank space to make reading easier.
                 1 => "\u{25af}", // Mapping white to rectangle to make reading easier.
                 2 => " ",
                 _ => panic!("Unknown color when processing layer"),
