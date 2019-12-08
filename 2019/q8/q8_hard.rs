@@ -23,7 +23,7 @@ fn layer_to_img_str(layer: Vec<u32>, width: usize) -> String {
         .map(|digit| {
             match digit {
                 0 => " ", // Mapping black to blank space to make reading easier.
-                1 => "0", // Mapping white to 0 to make reading easier.
+                1 => "\u{25af}", // Mapping white to rectangle to make reading easier.
                 2 => " ",
                 _ => panic!("Unknown color when processing layer"),
             }
