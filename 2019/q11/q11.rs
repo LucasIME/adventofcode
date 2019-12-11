@@ -62,7 +62,6 @@ impl Computer {
 
     fn process_next_op(&mut self) {
         let (instruction, modes) = parse_instruction(self.get_mem_address(self.cur_pos));
-        //println!("{}, {:?}, {:?}", instruction, self.input, self.output);
         self.last_intruction = instruction as usize;
         match instruction {
             1 => {
