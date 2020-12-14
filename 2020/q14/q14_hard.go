@@ -57,7 +57,7 @@ func maskToBitMap(mask string) map[int]int {
 }
 
 func memUpdateHelper(memory, mask map[int]int, address, value, bitPos int, bitSoFar []int) map[int]int {
-	if bitPos == 36 { // check if this should be 36 or 35. i think 36
+	if bitPos == 36 {
 		targetAddress := address
 		for i, v := range bitSoFar {
 			if v == 1 {
