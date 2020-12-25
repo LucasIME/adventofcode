@@ -46,8 +46,8 @@ func findLoop(start, target int) int {
 func process(cardPublic, doorPublic int) int {
 	carLoop := findLoop(1, cardPublic)
 
-	resp := 1 
-	for i:= 0; i < carLoop; i++ {
+	resp := 1
+	for i := 0; i < carLoop; i++ {
 		resp *= doorPublic
 		resp %= DIV
 	}
