@@ -110,8 +110,8 @@ func removeNext3(cups *node) (*node, *node, []int) {
 	return firstToBeRemoved, lastToBeRemoved, []int{firstToBeRemoved.val, firstToBeRemoved.next.val, lastToBeRemoved.val}
 }
 
-func makeValToNodeMap(head *node) map[int]*node {
-	out := make(map[int]*node)
+func makeValToNodeMap(head *node) []*node {
+	out := make([]*node, 1_000_001)
 	cur := head
 	for i := 0; i <= 1_000_000; i++ {
 		out[cur.val] = cur
