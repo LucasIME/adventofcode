@@ -1,7 +1,6 @@
 package q3
 
 import java.io.File
-import java.util.stream.Collectors
 
 fun main() {
     val input = parseInput()
@@ -21,9 +20,7 @@ private fun toVal(c: Char): Int {
 }
 
 private fun toCommonElement(pair: Pair<String, String>): Char {
-    val firstCharSet = pair.first.chars().mapToObj { it.toChar() }.collect(Collectors.toSet())
-    val secondCharSet = pair.second.chars().mapToObj { it.toChar() }.collect(Collectors.toSet())
-    return firstCharSet.intersect(secondCharSet).single()
+    return pair.first.toSet().intersect(pair.second.toSet()).single()
 }
 
 private fun parseInput(): List<Pair<String, String>> {

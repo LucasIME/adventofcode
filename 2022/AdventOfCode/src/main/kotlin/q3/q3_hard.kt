@@ -1,7 +1,6 @@
 package q3
 
 import java.io.File
-import java.util.stream.Collectors
 
 fun main() {
     val input = parseInput()
@@ -13,8 +12,7 @@ private fun process(input: List<List<String>>): Int {
 }
 
 fun toCommonElement(strings: List<String>): Char {
-    return strings.map { it.chars().mapToObj { it.toChar() }.collect(Collectors.toSet()) }
-        .reduce { a, b -> a.intersect(b) }.single()
+    return strings.map { it.toSet() }.reduce { a, b -> a.intersect(b) }.single()
 }
 
 private fun toVal(c: Char): Int {
