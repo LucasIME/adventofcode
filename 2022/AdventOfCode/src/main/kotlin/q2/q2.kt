@@ -11,7 +11,7 @@ fun main() {
 private fun process(input: List<List<Move>>): Long {
     var score = 0L
 
-    input.forEach{
+    input.forEach {
         val opponent = it[0]
         val you = it[1]
 

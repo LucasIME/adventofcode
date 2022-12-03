@@ -13,7 +13,7 @@ private fun process(input: List<String>): Long {
     var curVal = 0L
     input.spliterator()
 
-    input.forEach{
+    input.forEach {
         if (it == "") {
             heap.add(curVal)
             curVal = 0

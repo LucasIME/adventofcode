@@ -10,7 +10,7 @@ fun main() {
 private fun process(input: List<List<String>>): Long {
     var score = 0L
 
-    input.forEach{
+    input.forEach {
         val opponent = Move.toMove(it[0])
         val youOutcome = Outcome.toOutcome(it[1])
         val youMove = getMoveToOutcome(opponent, youOutcome)
@@ -22,7 +22,7 @@ private fun process(input: List<List<String>>): Long {
 }
 
 private fun getMoveToOutcome(opponent: Move, youOutcome: Outcome): Move {
-    return when(youOutcome) {
+    return when (youOutcome) {
         Outcome.DRAW -> opponent
         Outcome.WIN -> Move.getWinMoveAgainst(opponent)
         Outcome.LOSE -> Move.getLoseMoveAgainst(opponent)
@@ -30,15 +30,15 @@ private fun getMoveToOutcome(opponent: Move, youOutcome: Outcome): Move {
 }
 
 enum class Outcome {
-    LOSE, DRAW,WIN;
+    LOSE, DRAW, WIN;
 
     companion object {
-        fun toOutcome(s: String): Outcome{
+        fun toOutcome(s: String): Outcome {
             if (s == "X") {
                 return LOSE
             }
 
-            if (s == "Y")  {
+            if (s == "Y") {
                 return DRAW
             }
 
@@ -46,7 +46,7 @@ enum class Outcome {
         }
 
         fun getScore(outcome: Outcome): Long {
-            return when(outcome) {
+            return when (outcome) {
                 WIN -> 6
                 DRAW -> 3
                 LOSE -> 0

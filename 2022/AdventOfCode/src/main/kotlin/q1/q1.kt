@@ -9,10 +9,10 @@ fun main() {
 }
 
 private fun process(input: List<String>): Long {
-    var maxSoFar = Long.MIN_VALUE;
-    var curMax = Long.MIN_VALUE;
+    var maxSoFar = Long.MIN_VALUE
+    var curMax = Long.MIN_VALUE
 
-    input.forEach{
+    input.forEach {
         if (it == "") {
             maxSoFar = max(maxSoFar, curMax)
             curMax = 0
