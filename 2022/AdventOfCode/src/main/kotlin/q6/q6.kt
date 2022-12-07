@@ -27,12 +27,10 @@ private fun process(input: String): Int {
 private fun areAllDifferent(window: CharArray): Boolean {
     val set = mutableSetOf<Char>()
     window.forEach {
-        run {
-            if (it in set) {
-                return false
-            }
-            set.add(it)
+        if (it in set) {
+            return false
         }
+        set.add(it)
     }
 
     return EMPTY !in set

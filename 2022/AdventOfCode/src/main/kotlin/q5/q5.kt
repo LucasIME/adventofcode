@@ -44,10 +44,8 @@ private fun parseInput(): Game {
     stackRaw
         .forEach { s ->
             s.forEachIndexed { i, c ->
-                run {
-                    if (i % 4 == 1 && c != ' ') {
-                        stacks.get(i / 4).push(c)
-                    }
+                if (i % 4 == 1 && c != ' ') {
+                    stacks[i / 4].push(c)
                 }
             }
         }
@@ -55,10 +53,8 @@ private fun parseInput(): Game {
     val finalStacks = stacks.map { reverseStack(it) }
 
     val moves = movesRaw.map {
-        run {
-            val split = it.split(" ")
-            Triple(split[1].toInt(), split[3].toInt(), split[5].toInt())
-        }
+        val split = it.split(" ")
+        Triple(split[1].toInt(), split[3].toInt(), split[5].toInt())
     }
 
     return Game(finalStacks, moves)
