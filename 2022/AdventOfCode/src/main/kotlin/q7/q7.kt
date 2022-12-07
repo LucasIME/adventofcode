@@ -9,35 +9,21 @@ fun main() {
 
 private fun process(input: FileSystemNode): Int {
     val sizes = mutableListOf<Int>()
-
-    getSizeAndAddToList(input, sizes)
-
+    getSizeAndAddToListIfFolder(input, sizes)
     return sizes.filter { it <= 100_000 }.sum()
 }
 
-private fun getSizeAndAddToList(input: FileSystemNode, out: MutableList<Int>) {
+private fun getSizeAndAddToListIfFolder(input: FileSystemNode, out: MutableList<Int>): Int {
     if (input.isFile) {
-        return
+        return input.size!!
     }
 
-    val folderSize = getFolderSize(input)
-    out.add(folderSize)
-
-    input.childrenByName.forEach { (_, node) ->
-        getSizeAndAddToList(node, out)
-    }
-}
-
-private fun getFolderSize(folder: FileSystemNode): Int {
     var total = 0
-    folder.childrenByName.forEach { (_, node) ->
-        total += if (node.isFile) {
-            node.size!!
-        } else {
-            getFolderSize(node)
-        }
+    input.childrenByName.forEach { (_, node) ->
+        total += getSizeAndAddToListIfFolder(node, out)
     }
 
+    out.add(total)
     return total
 }
 
