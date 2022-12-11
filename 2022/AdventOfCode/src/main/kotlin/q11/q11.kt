@@ -39,26 +39,27 @@ private fun parseInput(): List<Monkey> {
 
 private fun toMonkey(input: List<String>): Monkey {
     val monkeyNum = input[0].substring(7, input[0].length - 1).toInt()
-    val items = input[1].split(": ")[1].split(", ").map { it.toInt() }.toMutableList()
+    val items = input[1].split(": ")[1].split(", ").map { it.toLong() }.toMutableList()
     val operation = toOperationFunc(input[2].split(" = ")[1])
     val testFunc = toTestFunc(input[3].split(": ")[1])
+    val remainder = input[3].split(" ").last().toLong()
     val trueMonkey = input[4].split(" ").last().toInt()
     val falseMonkey = input[5].split(" ").last().toInt()
 
-    return Monkey(monkeyNum, items, operation, testFunc, trueMonkey, falseMonkey)
+    return Monkey(monkeyNum, items, operation, testFunc, remainder, trueMonkey, falseMonkey)
 }
 
-private fun toTestFunc(s: String): (Int) -> Boolean {
+private fun toTestFunc(s: String): (Long) -> Boolean {
     val divisor = s.split(" by ").last().toInt()
-    return { x -> x % divisor == 0 }
+    return { x -> x % divisor == 0L }
 }
 
-private fun toOperationFunc(s: String): (Int) -> Int {
+private fun toOperationFunc(s: String): (Long) -> Long {
     val (arg1, operation, arg2) = s.split(" ")
 
-    return { entry: Int ->
-        val arg1Value = if (arg1 == "old") entry else arg1.toInt()
-        val arg2Value = if (arg2 == "old") entry else arg2.toInt()
+    return { entry: Long ->
+        val arg1Value = if (arg1 == "old") entry else arg1.toLong()
+        val arg2Value = if (arg2 == "old") entry else arg2.toLong()
 
         when (operation) {
             "+" -> arg1Value + arg2Value
