@@ -1,7 +1,5 @@
 package q15
 
-import com.google.common.collect.Range
-import com.google.common.collect.TreeRangeSet
 import java.io.File
 import kotlin.math.abs
 
@@ -16,8 +14,8 @@ private fun process(sensorsAndBeacons: List<List<Pair<Int, Int>>>): Long {
     val MAX_RANGE = 4_000_000
 
     for (row in 0..MAX_RANGE) {
-        val validRange = TreeRangeSet.create<Int>()
-        validRange.add(Range.closed(0, MAX_RANGE))
+        val validRange = RangeSet()
+        validRange.add(0..MAX_RANGE)
 
         for ((sensor, sensorMaxDist) in sensorToMaxDist) {
             val pointAlignedVerticallyWithSensor = sensor.first to row
@@ -27,13 +25,13 @@ private fun process(sensorsAndBeacons: List<List<Pair<Int, Int>>>): Long {
                 val leftMostValueToExclude = sensor.first - rangeToExclude
                 val rightMostValueToExclude = sensor.first + rangeToExclude
 
-                validRange.remove(Range.closed(leftMostValueToExclude, rightMostValueToExclude))
+                validRange.remove(leftMostValueToExclude..rightMostValueToExclude)
             }
         }
 
-        if (!validRange.isEmpty) {
-            val finalCol =
-                validRange.asRanges().first().lowerEndpoint().toLong() + 1 // We'll have an open interval (x-1, x+1)
+        val maybePoints = validRange.getAllPoints()
+        if (maybePoints.isNotEmpty()) {
+            val finalCol = maybePoints.first().toLong()
             return finalCol * 4_000_000L + row.toLong()
         }
     }
