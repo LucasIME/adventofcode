@@ -3,11 +3,8 @@ package q16
 import java.io.File
 import java.util.PriorityQueue
 
-data class NodeInfo(val flow: Int, val neighs: List<String>)
-
 fun main() {
     val input = parseInput()
-    print(input)
     println(process(input))
 }
 
