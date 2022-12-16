@@ -3,6 +3,8 @@ package q16
 import com.google.common.collect.Sets
 import java.io.File
 import java.util.PriorityQueue
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 fun main() {
     val input = parseInput()
@@ -21,20 +23,37 @@ private fun process(graph: Map<String, NodeInfo>): Int {
         }
     }
 
+    val executorService = Executors.newFixedThreadPool(16)
+    val futuresList = mutableListOf<Future<*>>()
+    val lock = Any()
+
     var maxScore = 0
+
     for (groupSize in 0..nodesWeWantToVisit.size / 2) {
         val possibleCombinations = Sets.combinations(nodesWeWantToVisit, groupSize)
         for (nodesForMeToVisit in possibleCombinations) {
             val elephantNodesToVisit = Sets.difference(nodesWeWantToVisit, nodesForMeToVisit)
 
-            val humanScore = solve(reachabilityGraph, graph, "AA", 0, 0, 0, nodesForMeToVisit, maxRounds)
-            val elephantScore = solve(reachabilityGraph, graph, "AA", 0, 0, 0, elephantNodesToVisit, maxRounds)
+            futuresList.add(
+                executorService.submit {
+                    val humanScore = solve(reachabilityGraph, graph, "AA", 0, 0, 0, nodesForMeToVisit, maxRounds)
+                    val elephantScore = solve(reachabilityGraph, graph, "AA", 0, 0, 0, elephantNodesToVisit, maxRounds)
 
-            if (humanScore + elephantScore > maxScore) {
-                maxScore = humanScore + elephantScore
-            }
+                    synchronized(lock) {
+                        if (humanScore + elephantScore > maxScore) {
+                            maxScore = humanScore + elephantScore
+                        }
+
+                    }
+                }
+            )
         }
     }
+
+    for (future in futuresList) {
+        future.get()
+    }
+    executorService.shutdown()
 
     return maxScore
 }
