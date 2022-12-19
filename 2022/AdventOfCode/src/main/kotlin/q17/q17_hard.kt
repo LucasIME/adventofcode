@@ -8,7 +8,7 @@ fun main() {
     println(process(input))
 }
 
-data class State(val topLine: List<Int>, val piece: Shapes)
+data class State(val topLine: List<Int>, val piece: Shapes, val instructionIndex: Int)
 
 private fun process(input: String): Long {
     val space: MutableSet<Pair<Int, Int>> = mutableSetOf()
@@ -31,7 +31,7 @@ private fun process(input: String): Long {
         var doesCollideOnDrop = false
 
         val curNormalizedTopLine = getNormalizedTopLine(space, topEdge)
-        val curState = State(curNormalizedTopLine, shape)
+        val curState = State(curNormalizedTopLine, shape, time%input.length)
         if (curState in seen) {
             loopStart = seen.indexOf(curState)
             loopLength = i.toInt() - loopStart
@@ -69,12 +69,12 @@ private fun process(input: String): Long {
     val preLoopHeight = heights[loopStart - 1]
     val loopHeight = preLoopPlusLoopHeight - preLoopHeight
 
-    var resp = 0L
-    resp += ((piecesToFall - loopStart) / loopLength) * loopHeight
-    resp += preLoopHeight
+    val numberOfFullLoops = (piecesToFall - loopStart) / loopLength
 
     val remaining = (piecesToFall - loopStart) % loopLength
-    resp += heights[(loopStart + remaining - 1).toInt()] - heights[loopStart - 1]
+    val extraHeight =  heights[(loopStart + remaining -1).toInt()] - heights[loopStart - 1]
+
+    val resp = preLoopHeight + numberOfFullLoops * loopHeight + extraHeight
 
     return resp
 }
