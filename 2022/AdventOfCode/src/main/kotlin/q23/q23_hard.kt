@@ -7,7 +7,7 @@ fun main() {
     println(process(input))
 }
 
-private fun process(input: List<Pair<Int, Int>>): Int {
+private fun process(input: Set<Pair<Int, Int>>): Int {
     var elves = input
 
     var moveProposalPriority = mutableListOf<(Pair<Int, Int>, List<Pair<Int, Int>>) -> Pair<Int, Int>?>(
@@ -17,7 +17,7 @@ private fun process(input: List<Pair<Int, Int>>): Int {
         ::getMaybeEastProposal
     )
 
-    var lastElves: List<Pair<Int, Int>>? = null
+    var lastElves: Set<Pair<Int, Int>>? = null
     var i = 0
     while (elves != lastElves) {
         lastElves = elves
@@ -36,10 +36,10 @@ private fun <T> reshuffle(list: MutableList<T>): MutableList<T> {
 }
 
 private fun move(
-    elves: List<Pair<Int, Int>>,
+    elves: Set<Pair<Int, Int>>,
     movePriority: List<(Pair<Int, Int>, List<Pair<Int, Int>>) -> Pair<Int, Int>?>
-): List<Pair<Int, Int>> {
-    val newElves = mutableListOf<Pair<Int, Int>>()
+): Set<Pair<Int, Int>> {
+    val newElves = mutableSetOf<Pair<Int, Int>>()
 
     val proposedMoveToElves = mutableMapOf<Pair<Int, Int>, MutableList<Pair<Int, Int>>>()
     elves.forEach lambda@{ elf ->
@@ -71,7 +71,7 @@ private fun move(
     return newElves
 }
 
-private fun getOccupiedNeighs(elves: List<Pair<Int, Int>>, pos: Pair<Int, Int>): MutableList<Pair<Int, Int>> {
+private fun getOccupiedNeighs(elves: Set<Pair<Int, Int>>, pos: Pair<Int, Int>): MutableList<Pair<Int, Int>> {
     val resp = mutableListOf<Pair<Int, Int>>()
     for (row in pos.first - 1..pos.first + 1) {
         for (col in pos.second - 1..pos.second + 1) {
@@ -127,7 +127,7 @@ private fun getMaybeEastProposal(pos: Pair<Int, Int>, neighs: List<Pair<Int, Int
 }
 
 
-private fun parseInput(): List<Pair<Int, Int>> {
+private fun parseInput(): Set<Pair<Int, Int>> {
     return File("src/main/resources/q23.txt")
         .readLines()
         .withIndex()
@@ -140,4 +140,5 @@ private fun parseInput(): List<Pair<Int, Int>> {
                 }
             }
         }.filterNotNull()
+        .toSet()
 }
