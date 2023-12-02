@@ -59,4 +59,17 @@ defmodule AdventOfCode.Q2 do
     |> Enum.map(fn {gameNum, _} -> gameNum end)
     |> Enum.sum()
   end
+
+  def toGamePower({_gameNum, maxPerBall}) do
+    Enum.reduce(Map.values(maxPerBall), &*/2)
+  end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    input
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&lineToGame/1)
+    |> Enum.map(&gameToMaxBalls/1)
+    |> Enum.map(&toGamePower/1)
+    |> Enum.sum()
+  end
 end

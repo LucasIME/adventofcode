@@ -13,4 +13,16 @@ defmodule AdventOfCode.Q2Test do
     result = AdventOfCode.Q2.part1(file_stream)
     assert result == 2913
   end
+
+  test "Q2 Part 2 Example works" do
+    file_stream = File.stream!("./test/q2/q2_example.txt")
+    result = AdventOfCode.Q2.part2(file_stream)
+    assert result == 2286
+  end
+
+  test "Q2 Part 2 works" do
+    file_stream = File.stream!("./test/q2/q2.txt")
+    result = AdventOfCode.Q2.part2(file_stream)
+    assert result == 55593
+  end
 end
