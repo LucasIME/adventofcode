@@ -1,7 +1,7 @@
 defmodule AdventOfCode.Q2 do
   def lineToGame(line) do
     ["Game " <> number | tail] = String.split(line, ": ")
-    {number!(number), getMaxBalls(hd(tail))}
+    {String.to_integer(number), getMaxBalls(hd(tail))}
   end
 
   def getMaxBalls(line) do
@@ -21,17 +21,7 @@ defmodule AdventOfCode.Q2 do
 
   def ballToMap(ball) do
     [rawNum, color] = String.split(ball, " ")
-    %{color => number!(rawNum)}
-  end
-
-  def number!(string) do
-    case Integer.parse(string) do
-      {num, _} ->
-        num
-
-      :error ->
-        raise "Error parsing number"
-    end
+    %{color => String.to_integer(rawNum)}
   end
 
   def gameToMaxBalls({gameNum, plays}) do
