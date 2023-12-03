@@ -37,6 +37,20 @@ defmodule AdventOfCode.Q3 do
     |> Enum.any?()
   end
 
+  def get_star_neighbour(tuple_matrix, row, col) do
+    response =
+      for newRow <- [row - 1, row, row + 1],
+          newCol <- [col - 1, col, col + 1],
+          pos = {newRow, newCol},
+          in_bounds?(tuple_matrix, pos) &&
+            (row != elem(pos, 0) || col != elem(pos, 1)) &&
+            m_get(tuple_matrix, newRow, newCol) == "*" do
+        pos
+      end
+
+    response
+  end
+
   def board_sum(lines) do
     tuple_matrix = to_tuple_matrix(lines)
 
@@ -81,5 +95,75 @@ defmodule AdventOfCode.Q3 do
     |> Enum.map(&String.trim/1)
     |> Enum.map(&String.graphemes/1)
     |> board_sum
+  end
+
+  def board_gear_sum(lines) do
+    tuple_matrix = to_tuple_matrix(lines)
+
+    line_num = tuple_size(tuple_matrix)
+    col_num = tuple_size(elem(tuple_matrix, 0))
+
+    positions_to_value_list =
+      Enum.reduce(0..(line_num - 1), %{}, fn line, res ->
+        {res, acc, cur_dots_positions} =
+          Enum.reduce(0..(col_num - 1), {res, 0, MapSet.new()}, fn col,
+                                                                   {res, acc, cur_dots_positions} ->
+            case m_get(tuple_matrix, line, col) do
+              "." ->
+                res =
+                  Enum.reduce(cur_dots_positions, res, fn cur_dot_pos, res ->
+                    Map.put(
+                      res,
+                      cur_dot_pos,
+                      MapSet.put(Map.get(res, cur_dot_pos, MapSet.new()), acc)
+                    )
+                  end)
+
+                {res, 0, MapSet.new()}
+
+              any ->
+                case Integer.parse(any) do
+                  :error ->
+                    res =
+                      Enum.reduce(cur_dots_positions, res, fn cur_dot_pos, res ->
+                        Map.put(
+                          res,
+                          cur_dot_pos,
+                          MapSet.put(Map.get(res, cur_dot_pos, MapSet.new()), acc)
+                        )
+                      end)
+
+                    {res, 0, MapSet.new()}
+
+                  {num, _} ->
+                    {res, 10 * acc + num,
+                     Enum.reduce(
+                       get_star_neighbour(tuple_matrix, line, col),
+                       cur_dots_positions,
+                       fn cur_pos, cur_dots_positions ->
+                         MapSet.put(cur_dots_positions, cur_pos)
+                       end
+                     )}
+                end
+            end
+          end)
+
+        Enum.reduce(cur_dots_positions, res, fn cur_dot_pos, res ->
+          Map.put(res, cur_dot_pos, MapSet.put(Map.get(res, cur_dot_pos, MapSet.new()), acc))
+        end)
+      end)
+
+    Map.values(positions_to_value_list)
+    |> Enum.filter(fn map_set -> MapSet.size(map_set) == 2 end)
+    |> Enum.map(&MapSet.to_list/1)
+    |> Enum.map(fn [first_val, second_val] -> first_val * second_val end)
+    |> Enum.sum()
+  end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    input
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&String.graphemes/1)
+    |> board_gear_sum
   end
 end
