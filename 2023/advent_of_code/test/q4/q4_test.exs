@@ -13,4 +13,16 @@ defmodule AdventOfCode.Q4Test do
     result = AdventOfCode.Q4.part1(file_stream)
     assert result == 33950
   end
+
+  test "Q4 Part 2 Example works" do
+    file_stream = File.stream!("./test/q4/q4_example.txt")
+    result = AdventOfCode.Q4.part2(file_stream)
+    assert result == 30
+  end
+
+  test "Q4 Part 2 works" do
+    file_stream = File.stream!("./test/q4/q4.txt")
+    result = AdventOfCode.Q4.part2(file_stream)
+    assert result == 14_814_534
+  end
 end
