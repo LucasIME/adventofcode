@@ -72,7 +72,7 @@ defmodule AdventOfCode.Q5 do
       range1_end - range1_start + (range2_end - range2_start)
   end
 
-  def split_range2({rule_src_range, rule_dest_range}, {seed_start, seed_end}) do
+  def split_range({rule_src_range, rule_dest_range}, {seed_start, seed_end}) do
     {src_start, src_end} = rule_src_range
 
     result =
@@ -132,7 +132,7 @@ defmodule AdventOfCode.Q5 do
     {src_range, _dest_range} = rule
 
     if ranges_overlap?(src_range, raw_seed_range) do
-      {new_raw, new_out} = split_range2(rule, raw_seed_range)
+      {new_raw, new_out} = split_range(rule, raw_seed_range)
       new_seed_set = MapSet.delete(raw_seed_range_set, raw_seed_range)
 
       new_seed_set =
