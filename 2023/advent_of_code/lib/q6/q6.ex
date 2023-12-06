@@ -32,4 +32,16 @@ defmodule AdventOfCode.Q6 do
     |> Enum.map(&get_winning_count/1)
     |> Enum.reduce(&*/2)
   end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    [time, distance] =
+      input
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&String.split(&1, ":"))
+      |> Enum.flat_map(&tl/1)
+      |> Enum.map(&String.replace(&1, " ", ""))
+      |> Enum.map(&String.to_integer/1)
+
+    get_winning_count({time, distance})
+  end
 end
