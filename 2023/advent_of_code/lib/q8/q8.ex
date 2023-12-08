@@ -16,12 +16,12 @@ defmodule AdventOfCode.Q8 do
     |> Enum.into(%{})
   end
 
-  def get_min_steps([], next_stream, rules, cur_node, target) do
-    get_min_steps(Enum.reverse(next_stream), [], rules, cur_node, target)
+  def time_to_first([], next_stream, rules, cur_node, cond_fun) do
+    time_to_first(Enum.reverse(next_stream), [], rules, cur_node, cond_fun)
   end
 
-  def get_min_steps([cur_dir | tail], next_stream, rules, cur_node, target) do
-    if cur_node == target do
+  def time_to_first([cur_dir | tail], next_stream, rules, cur_node, cond_fun) do
+    if cond_fun.(cur_node) do
       0
     else
       {left, right} = rules[cur_node]
@@ -32,7 +32,7 @@ defmodule AdventOfCode.Q8 do
           "R" -> right
         end
 
-      1 + get_min_steps(tail, [cur_dir | next_stream], rules, next_node, target)
+      1 + time_to_first(tail, [cur_dir | next_stream], rules, next_node, cond_fun)
     end
   end
 
@@ -41,33 +41,13 @@ defmodule AdventOfCode.Q8 do
     raw_rules = input |> Enum.drop(2) |> Enum.map(&String.trim/1)
     rules = parse_rules(raw_rules)
 
-    get_min_steps(String.graphemes(seq), [], rules, @node_start, @node_end)
+    time_to_first(String.graphemes(seq), [], rules, @node_start, fn node -> node == @node_end end)
   end
 
   def get_keys_containing(rules, letter) do
     rules
     |> Map.keys()
     |> Enum.filter(&String.contains?(&1, letter))
-  end
-
-  def time_to_first_z([], next_stream, rules, cur_node, z_set) do
-    time_to_first_z(Enum.reverse(next_stream), [], rules, cur_node, z_set)
-  end
-
-  def time_to_first_z([cur_dir | tail], next_stream, rules, cur_node, z_set) do
-    if MapSet.member?(z_set, cur_node) do
-      0
-    else
-      {left, right} = rules[cur_node]
-
-      next_node =
-        case cur_dir do
-          "L" -> left
-          "R" -> right
-        end
-
-      1 + time_to_first_z(tail, [cur_dir | next_stream], rules, next_node, z_set)
-    end
   end
 
   def gcd(a, b) do
@@ -97,7 +77,11 @@ defmodule AdventOfCode.Q8 do
     z_set = MapSet.new(z_keys)
 
     a_keys
-    |> Enum.map(&time_to_first_z(String.graphemes(seq), [], rules, &1, z_set))
+    |> Enum.map(
+      &time_to_first(String.graphemes(seq), [], rules, &1, fn node ->
+        MapSet.member?(z_set, node)
+      end)
+    )
     |> lcm
   end
 end
