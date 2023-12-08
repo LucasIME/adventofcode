@@ -19,4 +19,16 @@ defmodule AdventOfCode.Q8Test do
     result = AdventOfCode.Q8.part1(file_stream)
     assert result == 21883
   end
+
+  test "Q8 Part 2 Example works" do
+    file_stream = File.stream!("./test/q8/q8_example3.txt")
+    result = AdventOfCode.Q8.part2(file_stream)
+    assert result == 6
+  end
+
+  test "Q8 Part 2 works" do
+    file_stream = File.stream!("./test/q8/q8.txt")
+    result = AdventOfCode.Q8.part2(file_stream)
+    assert result == 12_833_235_391_111
+  end
 end
