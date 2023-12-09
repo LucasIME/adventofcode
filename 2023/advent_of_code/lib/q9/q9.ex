@@ -29,4 +29,14 @@ defmodule AdventOfCode.Q9 do
     |> Enum.map(&predict_next/1)
     |> Enum.sum()
   end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    input
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&String.split(&1, " "))
+    |> Enum.map(fn raw_list -> Enum.map(raw_list, &String.to_integer/1) end)
+    |> Enum.map(&Enum.reverse/1)
+    |> Enum.map(&predict_next/1)
+    |> Enum.sum()
+  end
 end
