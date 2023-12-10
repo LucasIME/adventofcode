@@ -77,7 +77,6 @@ defmodule AdventOfCode.Q10 do
     end
   end
 
-  # -, |, J, 7, F, L
   def get_east_neigh(board, {row, col}) do
     cur_cell = graph_get_or_nil(board, row, col)
 
