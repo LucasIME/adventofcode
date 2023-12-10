@@ -161,25 +161,25 @@ defmodule AdventOfCode.Q10 do
     add_edges(graph, source, neighs)
   end
 
-  def get_graph(board, {row, col}, visited_set, out_graph) do
+  def get_graph(_board, [], _visited_set, out_graph) do
+    out_graph
+  end
+
+  def get_graph(board, [{row, col} | tail], visited_set, out_graph) do
     if MapSet.member?(visited_set, {row, col}) do
-      out_graph
+      get_graph(board, tail , visited_set, out_graph)
     else
       visited_set = MapSet.put(visited_set, {row, col})
 
       neighs = get_neighs(board, {row, col})
       out_graph = add_edges(out_graph, {row, col}, neighs)
 
-      Enum.reduce(neighs, out_graph, fn neigh, acc_graph ->
-        new_graph = get_graph(board, neigh, visited_set, acc_graph)
-
-        Map.merge(acc_graph, new_graph, fn _key, set1, set2 -> MapSet.union(set1, set2) end)
-      end)
+      get_graph(board, neighs ++ tail , visited_set, out_graph)
     end
   end
 
   def get_graph(board, {row, col}) do
-    get_graph(board, {row, col}, MapSet.new(), %{})
+    get_graph(board, [{row, col}], MapSet.new(), %{})
   end
 
   def get_loop_size(graph, start_pos, visited_set, steps) do
