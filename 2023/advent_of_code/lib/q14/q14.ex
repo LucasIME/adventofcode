@@ -115,11 +115,6 @@ defmodule AdventOfCode.Q14 do
     spin_many(spinned, n-1)
   end
 
-  def points_after_spinning(n, repeating) do
-    index = rem(n, tuple_size(repeating))
-    elem(repeating, index + 1)
-  end
-
   def spin_until_seen(grid, count, seen) do
     if MapSet.member?(seen, grid) do
       {grid, count}
