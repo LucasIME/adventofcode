@@ -1,20 +1,11 @@
 defmodule AdventOfCode.Q6 do
-  def get_winning_count(0, _total_time, _distance) do
-    0
-  end
-
-  def get_winning_count(hold_time, total_time, distance) do
-    traveled = (total_time - hold_time) * hold_time
-
-    if traveled > distance do
-      1 + get_winning_count(hold_time - 1, total_time, distance)
-    else
-      get_winning_count(hold_time - 1, total_time, distance)
-    end
-  end
-
   def get_winning_count({time, distance}) do
-    get_winning_count(time, time, distance)
+    delta_sqrt = :math.sqrt(time * time - 4 * (-1) * (-1 * distance))
+
+    x1 = (( (-1 * time) - delta_sqrt ) / (2 * -1)) |> :math.ceil() |> trunc()
+    x2 = (( (-1 * time) + delta_sqrt ) / (2 * -1)) |> :math.floor() |> trunc()
+
+    x2 - x1 + 1 |> abs()
   end
 
   def part1(input \\ IO.stream(:stdio, :line)) do
