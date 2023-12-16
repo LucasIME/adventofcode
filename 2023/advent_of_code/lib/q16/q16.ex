@@ -69,8 +69,19 @@ defmodule AdventOfCode.Q16 do
     end
   end
 
-  def energized(matrix) do
-    energized(matrix, 0, -1, :right, MapSet.new())
+  def energized(matrix, row \\ 0, col \\ -1, dir \\ :right) do
+    energized(matrix, row, col, dir, MapSet.new())
+  end
+
+  def visited_size(visited) do
+    seen =
+      visited
+      |> Enum.map(fn {row, col, _dir} -> {row, col} end)
+      |> MapSet.new()
+      |> MapSet.size()
+
+    # have to disconsider the position out of the board where we start
+    seen - 1
   end
 
   def part1(input \\ IO.stream(:stdio, :line)) do
@@ -81,15 +92,34 @@ defmodule AdventOfCode.Q16 do
       |> Enum.map(&List.to_tuple/1)
       |> List.to_tuple()
 
-    all_places = energized(matrix)
+    energized(matrix) |> visited_size()
+  end
 
-    seen =
-      all_places
-      |> Enum.map(fn {row, col, _dir} -> {row, col} end)
-      |> MapSet.new()
-      |> MapSet.size()
+  def get_all_possible_starts(matrix) do
+    last_row = tuple_size(matrix) - 1
+    last_col = tuple_size(matrix |> elem(0)) - 1
 
-    # have to disconsider the (0, -1) where we start
-    seen - 1
+    left_starts = for row <- 0..last_row, do: {row, -1, :right}
+    right_starts = for row <- 0..last_row, do: {row, last_col + 1, :left}
+    top_starts = for col <- 0..last_col, do: {-1, col, :down}
+    bottom_starts = for col <- 0..last_col, do: {last_row + 1, col, :up}
+
+    left_starts ++ right_starts ++ top_starts ++ bottom_starts
+  end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    matrix =
+      input
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&String.graphemes/1)
+      |> Enum.map(&List.to_tuple/1)
+      |> List.to_tuple()
+
+    all_possible_starts = get_all_possible_starts(matrix)
+
+    all_possible_starts
+    |> Enum.map(fn {row, col, dir} -> energized(matrix, row, col, dir) end)
+    |> Enum.map(&visited_size/1)
+    |> Enum.max()
   end
 end
