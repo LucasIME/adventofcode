@@ -46,7 +46,7 @@ defmodule AdventOfCode.Q17 do
     end
   end
 
-  def get_dist_after_steps(_grid, _row, _col, _dir, _cur_dist, 0) do
+  def get_dist_after_steps(_grid, _row, _col, _dir, _cur_dist, 10) do
     []
   end
 
@@ -74,33 +74,33 @@ defmodule AdventOfCode.Q17 do
     end
   end
 
-  def get_neighs(grid, row, col, dir, cur_dist) do
+  def get_neighs(grid, row, col, dir, cur_dist, step_fun) do
     possible_dirs = get_possible_next_dirs(dir)
-    possible_dirs |> Enum.flat_map(&get_dist_after_steps(grid, row, col, &1, cur_dist, 3))
+    possible_dirs |> Enum.flat_map(&step_fun.(grid, row, col, &1, cur_dist))
   end
 
-  def find_shortest(grid, distances, priority_queue, target) do
+  def find_shortest(grid, distances, priority_queue, target, step_fun) do
     {{cur_dist, {row, col, dir}}, new_priority_queue} = PriorityQueue.pop!(priority_queue)
 
     if {row, col} == target do
       cur_dist
     else
-      neigh_with_dist = get_neighs(grid, row, col, dir, cur_dist)
+      neigh_with_dist = get_neighs(grid, row, col, dir, cur_dist, step_fun)
 
       {new_priority_queue, updated_distances} =
         update_distances(new_priority_queue, distances, neigh_with_dist)
 
-      find_shortest(grid, updated_distances, new_priority_queue, target)
+      find_shortest(grid, updated_distances, new_priority_queue, target, step_fun)
     end
   end
 
-  def min_dist(grid) do
+  def min_dist(grid, step_fun) do
     distances = initialize_distances(grid)
 
     target = {tuple_size(grid) - 1, tuple_size(grid |> elem(0)) - 1}
     priority_queue = [{0, {0, 0, :left}}, {0, {0, 0, :up}}] |> Enum.into(PriorityQueue.new())
 
-    find_shortest(grid, distances, priority_queue, target)
+    find_shortest(grid, distances, priority_queue, target, step_fun)
   end
 
   def part1(input \\ IO.stream(:stdio, :line)) do
@@ -112,6 +112,58 @@ defmodule AdventOfCode.Q17 do
       |> Enum.map(&List.to_tuple/1)
       |> List.to_tuple()
 
-    min_dist(grid)
+    min_dist(grid, fn my_grid, row, col, dir, cur_dist ->
+      get_dist_between_steps(my_grid, row, col, dir, cur_dist, 1, 3)
+    end)
+  end
+
+  def get_dist_between_steps(grid, row, col, dir, cur_dist, min_step, max_step, cur_step \\ 1)
+
+  def get_dist_between_steps(_grid, _row, _col, _dir, _cur_dist, _min_step, max_step, cur_step)
+      when cur_step > max_step do
+    []
+  end
+
+  def get_dist_between_steps(grid, row, col, dir, cur_dist, min_step, max_step, cur_step) do
+    {next_row, next_col} = get_next(row, col, dir)
+
+    if is_valid?(grid, next_row, next_col) do
+      new_dist = cur_dist + (grid |> elem(next_row) |> elem(next_col))
+
+      my_contribution =
+        if cur_step >= min_step do
+          [{{next_row, next_col, dir}, new_dist}]
+        else
+          []
+        end
+
+      my_contribution ++
+        get_dist_between_steps(
+          grid,
+          next_row,
+          next_col,
+          dir,
+          new_dist,
+          min_step,
+          max_step,
+          cur_step + 1
+        )
+    else
+      []
+    end
+  end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    grid =
+      input
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&String.graphemes/1)
+      |> Enum.map(&Enum.map(&1, fn char -> String.to_integer(char) end))
+      |> Enum.map(&List.to_tuple/1)
+      |> List.to_tuple()
+
+    min_dist(grid, fn my_grid, row, col, dir, cur_dist ->
+      get_dist_between_steps(my_grid, row, col, dir, cur_dist, 4, 10)
+    end)
   end
 end
