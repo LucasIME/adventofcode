@@ -102,8 +102,9 @@ defmodule AdventOfCode.Q18 do
     perimeter = vertices |> perimeter()
     shoelace = shoelace(vertices)
 
-    # Pick's theorem
-    area = (shoelace + div(perimeter, 2) + 1) |> trunc()
-    area
+    #Pick's theorem: A = inside + (perimeter/2) - 1
+    # inside = A - (perimeter/2) + 1
+    inside = shoelace - div(perimeter, 2)  + 1 |> trunc()
+    inside + perimeter
   end
 end
