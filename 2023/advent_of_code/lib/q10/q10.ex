@@ -166,14 +166,14 @@ defmodule AdventOfCode.Q10 do
 
   def get_graph(board, [{row, col} | tail], visited_set, out_graph) do
     if MapSet.member?(visited_set, {row, col}) do
-      get_graph(board, tail , visited_set, out_graph)
+      get_graph(board, tail, visited_set, out_graph)
     else
       visited_set = MapSet.put(visited_set, {row, col})
 
       neighs = get_neighs(board, {row, col})
       out_graph = add_edges(out_graph, {row, col}, neighs)
 
-      get_graph(board, neighs ++ tail , visited_set, out_graph)
+      get_graph(board, neighs ++ tail, visited_set, out_graph)
     end
   end
 
@@ -217,5 +217,96 @@ defmodule AdventOfCode.Q10 do
     graph = get_graph(board, start_pos)
     loop_size = get_loop_size(graph, start_pos)
     div(loop_size, 2)
+  end
+
+  def shoelace(vertices) do
+    pairs =
+      vertices
+      |> Enum.zip(vertices |> rotated_vertices(1))
+
+    pairs
+    |> Enum.map(fn {a, b} -> shoelace_term(a, b) end)
+    |> Enum.sum()
+    |> Kernel.abs()
+    |> Kernel./(2)
+  end
+
+  defp shoelace_term({y1, x1}, {y2, x2}) do
+    x1 * y2 - x2 * y1
+  end
+
+  defp rotated_vertices(vertices, offset) do
+    vertices
+    |> Enum.drop(offset)
+    |> Enum.concat(Enum.take(vertices, offset))
+  end
+
+  # only works because I know they'll always be vertical or horizontal lines
+  def edge_len({x1, y1}, {x2, y2}) do
+    abs(y2 - y1) + abs(x2 - x1)
+  end
+
+  def perimeter(vertices) do
+    rotated =
+      vertices
+      |> Enum.zip(vertices |> rotated_vertices(1))
+
+    all =
+      rotated
+      |> Enum.map(fn {a, b} -> edge_len(a, b) end)
+      |> Enum.sum()
+
+    all
+  end
+
+  def dfs(graph, current_node, visited, path) do
+    if MapSet.member?(visited, current_node) do
+      path
+    else
+      new_visited = MapSet.put(visited, current_node)
+      new_path = [current_node | path]
+
+      neighbors =
+        Map.get(graph, current_node, MapSet.new())
+        |> Enum.filter(fn pos -> not MapSet.member?(visited, pos) end)
+
+      if length(neighbors) == 0 do
+        path
+      else
+        dfs(graph, hd(neighbors), new_visited, new_path)
+      end
+    end
+  end
+
+  def dfs(graph, start) do
+    dfs(graph, start, MapSet.new(), [])
+  end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    raw_board =
+      input
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&String.graphemes/1)
+
+    start_pos = get_start(raw_board)
+
+    board = raw_board |> Enum.map(&List.to_tuple/1) |> List.to_tuple()
+
+    graph = get_graph(board, start_pos)
+    allowed_vertices = ["L", "7", "S", "J", "F"] |> MapSet.new()
+
+    vertices =
+      dfs(graph, start_pos)
+      |> Enum.filter(fn {row, col} ->
+        MapSet.member?(allowed_vertices, board |> elem(row) |> elem(col))
+      end)
+
+    perimeter = vertices |> perimeter()
+    shoelace = shoelace(vertices)
+
+    # Pick's theorem: A = inside + (perimeter/2) - 1
+    # ->  inside = A - (perimeter/2) + 1
+    inside = (shoelace - div(perimeter, 2) + 1) |> ceil()
+    inside
   end
 end
