@@ -8,6 +8,21 @@ defmodule AdventOfCode.Q18 do
     end
   end
 
+  # only works because I know they'll always be vertical or horizontal lines
+  def edge_len({x1, y1}, {x2, y2}) do
+    abs(y2 - y1) + abs(x2 - x1)
+  end
+
+  def perimeter(vertices) do
+    rotated =
+      vertices
+      |> Enum.zip(vertices |> rotated_vertices(1))
+
+    rotated
+    |> Enum.map(fn {a, b} -> edge_len(a, b) end)
+    |> Enum.sum()
+  end
+
   def to_vertices(steps) do
     initial_vertice = [{0, 0}]
 
@@ -40,26 +55,6 @@ defmodule AdventOfCode.Q18 do
     |> Enum.concat(Enum.take(vertices, offset))
   end
 
-  def get_next_n(_row, _col, _dir, 0) do
-    []
-  end
-
-  def get_next_n(row, col, dir, steps) do
-    next_vertice = get_next(row, col, dir, 1)
-    {next_row, next_col} = next_vertice
-    [next_vertice | get_next_n(next_row, next_col, dir, steps - 1)]
-  end
-
-  def to_outline(steps) do
-    initial_vertice = [{0, 0}]
-
-    Enum.reduce(steps, initial_vertice, fn {dir, steps}, acc_vertices ->
-      [{last_row, last_col} | _tail] = acc_vertices
-      next_vertices = get_next_n(last_row, last_col, dir, steps)
-      Enum.reverse(next_vertices) ++ acc_vertices
-    end)
-  end
-
   def part1(input \\ IO.stream(:stdio, :line)) do
     steps =
       input
@@ -67,13 +62,8 @@ defmodule AdventOfCode.Q18 do
       |> Enum.map(&String.split(&1, " "))
       |> Enum.map(fn [dir, raw_steps, _color] -> {dir, String.to_integer(raw_steps)} end)
 
-    outline = to_outline(steps)
-    # first point double counted
-    perimeter = length(outline) - 1
-
     vertices = to_vertices(steps)
-    vertices = Enum.drop(vertices, 1)
-
+    perimeter = vertices |> perimeter()
     shoelace = shoelace(vertices)
 
     # Pick's theorem
@@ -108,13 +98,8 @@ defmodule AdventOfCode.Q18 do
       |> Enum.map(&String.split(&1, " "))
       |> Enum.map(fn [_dir, _raw_steps, color] -> color_to_instruction(color) end)
 
-    outline = to_outline(steps)
-    # first point double counted
-    perimeter = length(outline) - 1
-
     vertices = to_vertices(steps)
-    vertices = Enum.drop(vertices, 1)
-
+    perimeter = vertices |> perimeter()
     shoelace = shoelace(vertices)
 
     # Pick's theorem
