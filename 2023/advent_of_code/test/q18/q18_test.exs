@@ -17,12 +17,12 @@ defmodule AdventOfCode.Q18Test do
   test "Q18 Part 2 Example works" do
     file_stream = File.stream!("./test/q18/q18_example.txt")
     result = AdventOfCode.Q18.part2(file_stream)
-    assert result == 952408144115
+    assert result == 952_408_144_115
   end
 
   test "Q18 Part 2 works" do
     file_stream = File.stream!("./test/q18/q18.txt")
     result = AdventOfCode.Q18.part2(file_stream)
-    assert result == 129373230496292
+    assert result == 129_373_230_496_292
   end
 end

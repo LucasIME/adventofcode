@@ -71,7 +71,7 @@ defmodule AdventOfCode.Q18 do
     area
   end
 
-  def color_number_to_direction(color_number)  do
+  def color_number_to_direction(color_number) do
     case color_number do
       "0" -> "R"
       "1" -> "D"
@@ -81,7 +81,8 @@ defmodule AdventOfCode.Q18 do
   end
 
   def color_to_instruction(color_with_parens) do
-    color_numbers = color_with_parens |> String.graphemes |>  Enum.drop(2) # dropping (#
+    # dropping (#
+    color_numbers = color_with_parens |> String.graphemes() |> Enum.drop(2)
     reversed_color_numbers = color_numbers |> Enum.reverse() |> Enum.drop(1)
     [direction_color_number | remaining_numbers] = reversed_color_numbers
 
@@ -102,9 +103,9 @@ defmodule AdventOfCode.Q18 do
     perimeter = vertices |> perimeter()
     shoelace = shoelace(vertices)
 
-    #Pick's theorem: A = inside + (perimeter/2) - 1
+    # Pick's theorem: A = inside + (perimeter/2) - 1
     # inside = A - (perimeter/2) + 1
-    inside = shoelace - div(perimeter, 2)  + 1 |> trunc()
+    inside = (shoelace - div(perimeter, 2) + 1) |> trunc()
     inside + perimeter
   end
 end
