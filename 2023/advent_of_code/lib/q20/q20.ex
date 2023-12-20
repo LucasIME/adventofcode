@@ -1,5 +1,4 @@
 defmodule AdventOfCode.Q20 do
-
   def broadcast_module() do
     %{
       :state => {},
@@ -97,16 +96,59 @@ defmodule AdventOfCode.Q20 do
     end)
   end
 
-  def process_pulses(modules, [], [], low_count, high_count) do
-    {modules, low_count, high_count}
+  def process_pulses(
+        modules,
+        [],
+        [],
+        low_count,
+        high_count,
+        _src,
+        _pulse_type,
+        _target,
+        has_reached_target?
+      ) do
+    {modules, low_count, high_count, has_reached_target?}
   end
 
-  def process_pulses(modules, [], buffer_queue, low_count, high_count) do
-    process_pulses(modules, Enum.reverse(buffer_queue), [], low_count, high_count)
+  def process_pulses(
+        modules,
+        [],
+        buffer_queue,
+        low_count,
+        high_count,
+        src,
+        pulse_type,
+        target,
+        has_reached_target?
+      ) do
+    process_pulses(
+      modules,
+      Enum.reverse(buffer_queue),
+      [],
+      low_count,
+      high_count,
+      src,
+      pulse_type,
+      target,
+      has_reached_target?
+    )
   end
 
-  def process_pulses(modules, [cur | tail], buffer_queue, low_count, high_count) do
+  def process_pulses(
+        modules,
+        [cur | tail],
+        buffer_queue,
+        low_count,
+        high_count,
+        wanted_src,
+        pulse_type,
+        target,
+        has_reached_target?
+      ) do
     {src, pulse, destination} = cur
+
+    did_hit? = src == wanted_src and pulse == pulse_type and destination == target
+    new_reach = did_hit? or has_reached_target?
 
     {new_low, new_high} =
       case pulse do
@@ -117,7 +159,17 @@ defmodule AdventOfCode.Q20 do
     target_module = modules[destination][:module]
 
     if target_module == nil do
-      process_pulses(modules, tail, buffer_queue, new_low, new_high)
+      process_pulses(
+        modules,
+        tail,
+        buffer_queue,
+        new_low,
+        new_high,
+        wanted_src,
+        pulse_type,
+        target,
+        new_reach
+      )
     else
       {new_state, out_pulse} = target_module.process_pulse.(target_module[:state], pulse, src)
 
@@ -131,7 +183,17 @@ defmodule AdventOfCode.Q20 do
           |> Enum.map(fn new_target -> {destination, out_pulse, new_target} end)
         end
 
-      process_pulses(new_modules, tail, new_destinations ++ buffer_queue, new_low, new_high)
+      process_pulses(
+        new_modules,
+        tail,
+        new_destinations ++ buffer_queue,
+        new_low,
+        new_high,
+        wanted_src,
+        pulse_type,
+        target,
+        new_reach
+      )
     end
   end
 
@@ -142,8 +204,18 @@ defmodule AdventOfCode.Q20 do
   end
 
   def press_button(modules, n, low, high) do
-    {next_state, low_count, high_count} =
-      process_pulses(modules, [{"button", :low, "broadcaster"}], [], low, high)
+    {next_state, low_count, high_count, _} =
+      process_pulses(
+        modules,
+        [{"button", :low, "broadcaster"}],
+        [],
+        low,
+        high,
+        "any",
+        :low,
+        "any",
+        false
+      )
 
     press_button(next_state, n - 1, low_count, high_count)
   end
@@ -157,5 +229,61 @@ defmodule AdventOfCode.Q20 do
 
     {_out, low, high} = press_button(modules, 1000)
     low * high
+  end
+
+  def press_until_target(modules, src, pulse_type, target, n \\ 1) do
+    {new_modules, _low, _high, did_hit?} =
+      process_pulses(
+        modules,
+        [{"button", :low, "broadcaster"}],
+        [],
+        0,
+        0,
+        src,
+        pulse_type,
+        target,
+        false
+      )
+
+    if did_hit? do
+      n
+    else
+      press_until_target(new_modules, src, pulse_type, target, n + 1)
+    end
+  end
+
+  def gcd(a, b) do
+    if b == 0 do
+      a
+    else
+      gcd(b, rem(a, b))
+    end
+  end
+
+  def lcm(a, b) do
+    trunc(a * b / gcd(a, b))
+  end
+
+  def lcm(num_list) do
+    num_list
+    |> Enum.reduce(&lcm/2)
+  end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    input_list = input |> Enum.map(&String.trim/1) |> Enum.to_list()
+    graph = to_graph(input_list)
+    inverted_graph = graph |> invert_graph()
+
+    modules = create_modules(input_list, inverted_graph)
+
+    target = "rx"
+    [parent_needing_high_input] = inverted_graph[target]
+    all_needing_high_input = inverted_graph[parent_needing_high_input]
+
+    frequencies_needed =
+      all_needing_high_input
+      |> Enum.map(&press_until_target(modules, &1, :high, parent_needing_high_input))
+
+    lcm(frequencies_needed)
   end
 end
