@@ -50,23 +50,6 @@ defmodule AdventOfCode.Q8 do
     |> Enum.filter(&String.contains?(&1, letter))
   end
 
-  def gcd(a, b) do
-    if b == 0 do
-      a
-    else
-      gcd(b, rem(a, b))
-    end
-  end
-
-  def lcm(a, b) do
-    trunc(a * b / gcd(a, b))
-  end
-
-  def lcm(num_list) do
-    num_list
-    |> Enum.reduce(&lcm/2)
-  end
-
   def part2(input \\ IO.stream(:stdio, :line)) do
     seq = input |> Enum.at(0) |> String.trim()
     raw_rules = input |> Enum.drop(2) |> Enum.map(&String.trim/1)
@@ -82,6 +65,6 @@ defmodule AdventOfCode.Q8 do
         MapSet.member?(z_set, node)
       end)
     )
-    |> lcm
+    |> AdventOfCode.Utils.lcm()
   end
 end

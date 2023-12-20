@@ -252,23 +252,6 @@ defmodule AdventOfCode.Q20 do
     end
   end
 
-  def gcd(a, b) do
-    if b == 0 do
-      a
-    else
-      gcd(b, rem(a, b))
-    end
-  end
-
-  def lcm(a, b) do
-    trunc(a * b / gcd(a, b))
-  end
-
-  def lcm(num_list) do
-    num_list
-    |> Enum.reduce(&lcm/2)
-  end
-
   def part2(input \\ IO.stream(:stdio, :line)) do
     input_list = input |> Enum.map(&String.trim/1) |> Enum.to_list()
     graph = to_graph(input_list)
@@ -284,6 +267,6 @@ defmodule AdventOfCode.Q20 do
       all_needing_high_input
       |> Enum.map(&press_until_target(modules, &1, :high, parent_needing_high_input))
 
-    lcm(frequencies_needed)
+    AdventOfCode.Utils.lcm(frequencies_needed)
   end
 end
