@@ -138,7 +138,70 @@ defmodule AdventOfCode.Q22 do
       |> Enum.filter(fn x -> x != nil end)
       |> MapSet.new()
 
-
     length(after_indexed_bricks) - (irreplaceable_bricks |> MapSet.size())
+  end
+
+  def count_fall(%MapSet{map: map}, _bricks_to_bricks_under, _already_dropped)
+      when map_size(map) == 0 do
+    0
+  end
+
+  def count_fall(indexes, bricks_to_bricks_under, already_dropped) do
+    new_state =
+      bricks_to_bricks_under
+      |> Enum.map(fn {key, values} ->
+        {key, Enum.filter(values, fn x -> not MapSet.member?(indexes, x) end)}
+      end)
+      |> Enum.into(%{})
+
+    new_already_dropped = MapSet.union(indexes, already_dropped)
+
+    drops = new_state |> Enum.count(fn {_key, values} -> values == [] end)
+
+    dropped_indexes =
+      new_state
+      |> Enum.map(fn {key, values} ->
+        case values do
+          [] -> key
+          _ -> nil
+        end
+      end)
+      |> Enum.filter(fn x -> x != nil end)
+      |> Enum.filter(fn x -> not MapSet.member?(new_already_dropped, x) end)
+      |> MapSet.new()
+
+    new_state =
+      new_state
+      |> Enum.filter(fn {_key, values} ->
+        case values do
+          [] -> false
+          _ -> true
+        end
+      end)
+      |> Enum.into(%{})
+
+    drops + count_fall(dropped_indexes, new_state, new_already_dropped)
+  end
+
+  def part2(input \\ IO.stream(:stdio, :line)) do
+    indexed_bricks =
+      input
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&to_brick/1)
+      |> Enum.with_index()
+
+    sorted_bricks =
+      indexed_bricks |> Enum.sort_by(fn {{{_, _, z1}, {_, _, z2}}, _} -> min(z1, z2) end)
+
+    point_to_bricks = generate_point_to_bricks(sorted_bricks)
+
+    {after_indexed_bricks, after_point_to_brick} = propagate_fall(sorted_bricks, point_to_bricks)
+
+    bricks_to_bricks_under =
+      create_bricks_to_bricks_under(after_indexed_bricks, after_point_to_brick)
+
+    0..(length(indexed_bricks) - 1)
+    |> Enum.map(&count_fall(MapSet.new([&1]), bricks_to_bricks_under, MapSet.new()))
+    |> Enum.sum()
   end
 end
