@@ -4,8 +4,8 @@ defmodule AdventOfCode.Q24Test do
 
   test "Q24 Part 1 Example works" do
     file_stream = File.stream!("./test/q24/q24_example.txt")
-    result = AdventOfCode.Q24.part1(file_stream)
-    assert result == 94
+    result = AdventOfCode.Q24.part1(file_stream, 7, 27)
+    assert result == 2
   end
 
   test "Q24 Part 1 works" do
