@@ -51,7 +51,7 @@
   ([] (part1 "day02/input.txt"))
   ([fileName]
     (let [file fileName
-          lines (utils/read-file file)
+          lines (utils/read-file-lines file)
           input (parse-input lines)
           resp (solve input)]
           resp
@@ -66,7 +66,7 @@
   ([] (part2 "day02/input.txt"))
   ([fileName]
     (let [file fileName
-          lines (utils/read-file file)
+          lines (utils/read-file-lines file)
           input (parse-input lines)
           resp (solve2 input)]
           resp
