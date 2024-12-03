@@ -21,25 +21,20 @@
 (defn part1 
   ([] (part1 "day01/input.txt"))
   ([fileName]
-    (let [file fileName
-          lines (utils/read-file-lines file)
-          input (parse-input lines)
-          resp (solve input)]
-          resp
-      )))
+  (-> fileName
+      (utils/read-file-lines)
+      (parse-input)
+      (solve))))
 
 (defn solve2 [[l1 l2]]
   (let [b_freq (frequencies l2)
-        a_similarity (map #(* %1 (get b_freq %1 0)) l1)
-        resp (reduce + a_similarity)] 
-    resp))
+        a_similarity (map #(* %1 (get b_freq %1 0)) l1)] 
+    (reduce + a_similarity)))
 
 (defn part2 
   ([] (part2 "day01/input.txt"))
   ([fileName]
-    (let [file fileName
-          lines (utils/read-file-lines file)
-          input (parse-input lines)
-          resp (solve2 input)]
-          resp
-      )))
+   (-> fileName
+       (utils/read-file-lines)
+       (parse-input)
+       (solve2))))

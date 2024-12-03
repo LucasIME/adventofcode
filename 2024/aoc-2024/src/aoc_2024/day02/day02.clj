@@ -38,36 +38,32 @@
   (some is-safe (comb-removing-one input)))
 
 (defn parse-input [raw_lines]
-  (let [split_lines (map #(str/split %1  #" ") raw_lines)
-        resp  (map  to-int-array  split_lines)]  
-    resp))
+  (->> raw_lines
+       (map #(str/split %1  #" "))
+       (map  to-int-array)))
 
 (defn solve [lines]
-  (let [safe (filter is-safe lines)
-        resp (count safe)]
-    resp))
+  (->> lines
+       (filter is-safe)
+       (count)))
 
 (defn part1 
   ([] (part1 "day02/input.txt"))
   ([fileName]
-    (let [file fileName
-          lines (utils/read-file-lines file)
-          input (parse-input lines)
-          resp (solve input)]
-          resp
-      )))
+   (-> fileName
+       (utils/read-file-lines)
+       (parse-input)
+       (solve))))
 
 (defn solve2 [lines]
-  (let [safe (filter is-lenient-safe lines)
-        resp (count safe)]
-    resp))
+  (->> lines
+       (filter is-lenient-safe)
+       (count)))
 
 (defn part2 
   ([] (part2 "day02/input.txt"))
   ([fileName]
-    (let [file fileName
-          lines (utils/read-file-lines file)
-          input (parse-input lines)
-          resp (solve2 input)]
-          resp
-      )))
+   (-> fileName
+       (utils/read-file-lines)
+       (parse-input)
+       (solve2))))
