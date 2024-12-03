@@ -5,35 +5,29 @@
 (def mul-regex #"mul\(\d{1,3},\d{1,3}\)")
 (def mul-regex-start (re-pattern (str "^" mul-regex)))
 
+(defn parse-mul-match [input]
+  (-> input
+   (#(subs %1 4 (dec (count %1))))
+   (str/split #",")
+   (#(list (Integer/parseInt (first %1)) (Integer/parseInt (second %1))))))
+
 (defn parse-input [raw_input]
-  (let [raw_mult_pairs (re-seq mul-regex raw_input)
-        num_with_comma_list (map #(subs %1 4 (dec (count %1))) raw_mult_pairs)
-        raw_num_str_pair_list (map #(str/split %1 #",") num_with_comma_list)
-        num_pair_list (map #(list (Integer/parseInt (first %1)) (Integer/parseInt (second %1)) ) raw_num_str_pair_list)
-        resp num_pair_list]
-    resp))
+  (->> raw_input
+       (re-seq mul-regex)
+       (map parse-mul-match)))
 
 (defn solve [pairs]
-  (let [mults  (map #(* (first %1) (second %1)) pairs)
-        resp (reduce + mults)]
-    resp))
+  (->> pairs 
+       (map #(* (first %1) (second %1))) 
+       (reduce +)))
 
 (defn part1 
   ([] (part1 "day03/input.txt"))
   ([fileName]
-    (let [raw_input  (utils/read-file fileName)
-          input (parse-input raw_input)
-          resp (solve input)]
-          resp
-      )))
-
-(defn parse-mul-match [input]
-  ( -> input
-   (#(subs %1 4 (dec (count %1))))
-   (str/split #",")
-   (#(list (Integer/parseInt (first %1)) (Integer/parseInt (second %1)) ) )
-   ))
-
+  (-> fileName
+      (utils/read-file)
+      (parse-input)
+      (solve))))
 
 (defn try-extract-mul-regex [input]
   (let [maybe_match (re-find mul-regex-start input)]
@@ -44,9 +38,9 @@
   ([input should_accept out] 
   (loop [input input, should_accept should_accept, out out]
     (cond
+        (empty? input) out
         (str/starts-with? input "do()") (recur (subs input 4) true out)
         (str/starts-with? input "don't()") (recur (subs input 7) false out)
-        (<= (count input) 6) out
         should_accept (let [[maybe_raw maybe_nums] (try-extract-mul-regex input)]
                           (if (nil? maybe_raw)
                             (recur (subs input 1) should_accept out)
@@ -57,7 +51,7 @@
 (defn part2 
   ([] (part2 "day03/input.txt"))
   ([fileName]
-    (let [raw_input  (utils/read-file fileName)
-          input (parse-with-dos raw_input)
-          resp (solve input)]
-          resp)))
+   (-> fileName
+   (utils/read-file)
+   (parse-with-dos)
+   (solve))))
