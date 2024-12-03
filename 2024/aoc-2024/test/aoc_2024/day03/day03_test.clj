@@ -9,3 +9,11 @@
 (deftest day03-part1-test
       (testing "Day 03 part1"
         (is (= 161289189 (part1)))))
+
+(deftest day03-part2-ex2-test
+      (testing "Day 02 part2 ex2"
+        (is (= 48 (part2 "day03/ex2.txt")))))
+
+(deftest day03-part2-test
+      (testing "Day 03 part2"
+        (is (= 83595109 (part2)))))
