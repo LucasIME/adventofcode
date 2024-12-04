@@ -10,13 +10,13 @@
 (map #(+ (first %1) (second %1)) direction-vectors)
 
 (defn get-word-in-direction [matrix row col direction]
-  (loop [m matrix i row j col out '()]
+  (loop [m matrix i row j col out '() count 0]
     (let [maybe_item (get-in m [i j])]
-    (case maybe_item
-      nil  (str/join "" (reverse out))
-      (recur m (+ i (first direction)) (+ j (second direction)) (cons maybe_item out)))
-    )
-  ))
+    (cond 
+      (or 
+       (= maybe_item nil)
+       (> count 4)) (str/join "" (reverse out))
+      :else (recur m (+ i (first direction)) (+ j (second direction)) (cons maybe_item out) (inc count))))))
 
 (defn get-cross-neighs [matrix row col]
   (map #(get-word-in-direction matrix row col %1) direction-vectors))
