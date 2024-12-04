@@ -38,3 +38,32 @@
       (utils/read-file-lines)
       (parse-input)
       (solve))))
+
+(defn is-xmas? [matrix row col]
+  (let [cur (get-in matrix [row col])
+        top-left (get-in matrix [(dec row) (dec col)])
+        bot-left (get-in matrix [(inc row) (dec col)])
+        top-right (get-in matrix [(dec row) (inc col)])
+        bot-right (get-in matrix [(inc row) (inc col)])]
+        (and
+         (= cur "A")
+         (or (and (= top-left "S") (= bot-right "M")) (and (= top-left "M") (= bot-right "S")))
+         (or (and (= top-right "S") (= bot-left "M")) (and (= top-right "M") (= bot-left "S")))
+         )
+    ))
+
+(defn solve2 [matrix]
+  (let [maybe_xmas (for [i (range (count matrix)) 
+                            j (range (count (matrix i)))] 
+                        (is-xmas? matrix i j))]
+    (->> maybe_xmas
+         (filter #(= true %1))
+         (count))))
+
+(defn part2 
+  ([] (part2 "day04/input.txt"))
+  ([fileName]
+  (-> fileName
+      (utils/read-file-lines)
+      (parse-input)
+      (solve2))))
