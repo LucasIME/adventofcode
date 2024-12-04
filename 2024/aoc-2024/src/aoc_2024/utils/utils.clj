@@ -8,3 +8,9 @@
 (defn read-file-lines [filename]
   (with-open [reader (io/reader (io/resource filename))]
     (doall (line-seq reader))))
+
+(defn to-char-matrix [lines]
+  (->> lines
+       (map #(map str %1))
+       (map vec)
+       (vec))) 

@@ -3,12 +3,14 @@
              [clojure.string :as str]))
 
 (defn parse-input [lines]
- lines)
+  (utils/to-char-matrix lines)) 
 
-(defn solve [pairs]
-  (->> pairs 
-       (map #(* (first %1) (second %1))) 
-       (reduce +)))
+
+(defn solve [matrix]
+  (doseq [i (range (count matrix))
+          j (range (count (matrix i)))]
+    (println (str "matrix[" i "][" j "] = " (get-in matrix [i j]))))
+  )
 
 (defn part1 
   ([] (part1 "day04/input.txt"))
