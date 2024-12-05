@@ -1,6 +1,7 @@
 (ns aoc-2024.day05.day05
-  (:require [aoc-2024.utils.utils :as utils]
-             [clojure.string :as str]))
+  (:require [aoc-2024.utils.utils :as utils] 
+            [clojure.string :as str]
+            [clojure.set :as set]))
 
 (defn parse-rules [raw_rules] 
   (let [raw_lines (str/split raw_rules #"\n")
@@ -51,3 +52,30 @@
       (utils/read-file)
       (parse-input)
       (solve))))
+
+(defn has-no-deps [item rules remaining]
+  (let [should_come_before (set (get rules item))]
+    (not (some #(contains? should_come_before %1) remaining))))
+
+(defn fix-invalid [rules entry]
+  (loop [entry entry out '()]
+    (cond
+      (empty? entry) out
+      :else (let [no_deps (filter #(has-no-deps %1 rules entry) entry)
+                  pending_deps (set/difference (set entry) (set no_deps))]
+              (recur pending_deps (concat out no_deps))))))
+
+(defn solve2 [[rules entries]]
+  (let [invalid_entries (filter #(not (is-valid? rules %1)) entries)]
+    (->> invalid_entries
+        (map #(fix-invalid rules %1))
+        (map middle-elem)
+        (reduce +))))
+
+(defn part2 
+  ([] (part2 "day05/input.txt"))
+  ([fileName]
+  (-> fileName
+      (utils/read-file)
+      (parse-input)
+      (solve2))))
