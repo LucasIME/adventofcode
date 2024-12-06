@@ -14,3 +14,8 @@
        (map #(map str %1))
        (map vec)
        (vec))) 
+
+(defn pfilter [pred coll]
+  (->> coll
+       (pmap (fn [item] (when (pred item) item)))
+       (remove nil?)))

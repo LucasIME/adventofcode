@@ -62,7 +62,7 @@
                                                [row col]))
         matrices-with-blockers (map #(assoc-in matrix %1 "#") positions)]
     (->> matrices-with-blockers
-         (filter #(has-loop %1 start-pos dir))
+         (utils/pfilter #(has-loop %1 start-pos dir))
          (count))))
 
 (defn part2 
