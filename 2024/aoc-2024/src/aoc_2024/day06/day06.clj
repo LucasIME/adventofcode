@@ -15,8 +15,8 @@
         clean-matrix (assoc-in matrix start-pos ".")]
     [clean-matrix start-pos 0])) 
 
-(defn is-out-of-bounds? [grid [row col]]
-  (nil? (get-in grid [row col])))
+(defn is-out-of-bounds? [grid pos]
+  (nil? (get-in grid pos)))
 
 (defn next-pos-in-dir [[row col] dir-pos]
   (let [[drow dcol] (get directions dir-pos)]
@@ -46,3 +46,29 @@
       (utils/read-file-lines)
       (parse-input)
       (solve))))
+
+(defn has-loop [matrix start-pos dir]
+  (loop [pos start-pos, dir-pos dir, visited #{}]
+    (cond
+      (is-out-of-bounds? matrix pos) false
+      (contains? visited [pos dir-pos]) true
+      :else (let [[new-pos new-dir] (next-pos matrix pos dir-pos)
+                  extended-visited (conj visited [pos dir-pos])]
+              (recur new-pos new-dir extended-visited)))))
+
+(defn solve2 [[matrix start-pos dir]]
+  (let [positions (filter #(not= %1 start-pos) (for [row (range (count matrix))
+                                                   col (range (count (get matrix row)))]
+                                               [row col]))
+        matrices-with-blockers (map #(assoc-in matrix %1 "#") positions)]
+    (->> matrices-with-blockers
+         (filter #(has-loop %1 start-pos dir))
+         (count))))
+
+(defn part2 
+  ([] (part2 "day06/input.txt"))
+  ([fileName]
+  (-> fileName
+      (utils/read-file-lines)
+      (parse-input)
+      (solve2))))
