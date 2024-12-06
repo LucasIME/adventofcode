@@ -34,7 +34,7 @@
 (defn solve [[matrix start-pos dir]]
   (loop [grid matrix pos start-pos dir-pos dir visited #{}]
     (cond
-      (is-out-of-bounds? grid pos) (count visited)
+      (is-out-of-bounds? grid pos) visited
       :else (let [[new-pos new-dir] (next-pos grid pos dir-pos)
                   extended-visited (conj visited pos)]
               (recur grid new-pos new-dir extended-visited)))))
@@ -45,7 +45,8 @@
   (-> fileName
       (utils/read-file-lines)
       (parse-input)
-      (solve))))
+      (solve)
+      (count))))
 
 (defn has-loop [matrix start-pos dir]
   (loop [pos start-pos, dir-pos dir, visited #{}]
@@ -57,9 +58,7 @@
               (recur new-pos new-dir extended-visited)))))
 
 (defn solve2 [[matrix start-pos dir]]
-  (let [positions (filter #(not= %1 start-pos) (for [row (range (count matrix))
-                                                   col (range (count (get matrix row)))]
-                                               [row col]))
+  (let [positions (filter #(not= %1 start-pos) (solve [matrix start-pos dir]))
         matrices-with-blockers (map #(assoc-in matrix %1 "#") positions)]
     (->> matrices-with-blockers
          (utils/pfilter #(has-loop %1 start-pos dir))
