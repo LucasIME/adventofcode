@@ -11,19 +11,16 @@
 (defn parse-input [lines]
   (map parse-line lines)) 
 
-(defn is-solvable? [[target nums]]
+(defn is-solvable? [ops [target nums]]
   (letfn [(helper [acc remaining]
     (cond
       (empty? remaining) (= acc target)
-      :else (or
-             (helper (+ acc (first remaining)) (drop 1 remaining))
-             (helper (* acc (first remaining)) (drop 1 remaining))
-             )))]
+      :else (some #(helper (%1 acc (first remaining)) (drop 1 remaining)) ops)))]
     (helper (first nums) (drop 1 nums))))
 
-(defn solve [equations]
+(defn solve [equations ops]
   (->> equations
-       (filter is-solvable?)
+       (filter #(is-solvable? ops %1) )
        (map first)
        (reduce +)))
 
@@ -33,27 +30,10 @@
   (-> fileName
       (utils/read-file-lines)
       (parse-input)
-      (solve))))
+      (solve (list + *)))))
 
 (defn num-concat [n1 n2]
   (Long/parseLong (str n1 n2)))
-
-(defn is-solvable2? [[target nums]]
-  (letfn [(helper [acc remaining]
-    (cond
-      (empty? remaining) (= acc target)
-      :else (or
-             (helper (+ acc (first remaining)) (drop 1 remaining))
-             (helper (* acc (first remaining)) (drop 1 remaining))
-             (helper (num-concat acc (first remaining)) (drop 1 remaining))
-             )))]
-    (helper (first nums) (drop 1 nums))))
-
-(defn solve2 [equations]
-  (->> equations
-       (filter is-solvable2?)
-       (map first)
-       (reduce +)))
 
 (defn part2 
   ([] (part2 "day07/input.txt"))
@@ -61,4 +41,4 @@
   (-> file-name
       (utils/read-file-lines)
       (parse-input)
-      (solve2))))
+      (solve (list + * num-concat)))))
