@@ -5,20 +5,21 @@
 (defn parse-line [line]
   (let [[raw_target raw_nums_str] (str/split line #": ")
         raw_nums (str/split raw_nums_str #" ")]
-    [(Integer/parseInt raw_target)
-     (map #(Integer/parseInt %1) raw_nums)]))
+    [(Long/parseLong raw_target)
+     (map #(Long/parseLong %1) raw_nums)]))
 
 (defn parse-input [lines]
   (map parse-line lines)) 
 
 (defn is-solvable? [[target nums]]
-  (loop [acc (first nums), remaining (drop 1 nums)]
+  (letfn [(helper [acc remaining]
     (cond
       (empty? remaining) (= acc target)
       :else (or
-             (recur (+ acc (first remaining)) (drop 1 remaining))
-             (recur (* acc (first remaining)) (drop 1 remaining))
-             ))))
+             (helper (+ acc (first remaining)) (drop 1 remaining))
+             (helper (* acc (first remaining)) (drop 1 remaining))
+             )))]
+    (helper (first nums) (drop 1 nums))))
 
 (defn solve [equations]
   (->> equations
@@ -33,5 +34,3 @@
       (utils/read-file-lines)
       (parse-input)
       (solve))))
-
-(part1 "day07/ex1.txt")
