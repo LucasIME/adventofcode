@@ -13,4 +13,7 @@ pom.xml.asc
 /.calva
 /.clj-kondo
 /.lsp
+/.calva
+/.clj-kondo
+/.lsp
 
