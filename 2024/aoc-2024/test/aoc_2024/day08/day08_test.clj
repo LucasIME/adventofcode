@@ -8,4 +8,4 @@
 
 (deftest day08-part1-test
       (testing "Day 08 part1"
-        (is (= -1 (part1)))))
+        (is (= 341 (part1)))))
