@@ -22,17 +22,6 @@
         j (range (inc i) (count array))]
     [(nth array i) (nth array j)]))
 
-(defn get-antinodes [[[row1 col1] [row2 col2]]]
-  (let [[vec_row vec_col] [(- row2 row1) (- col2 col1)]
-        p1 [(+ row2 vec_row) (+ col2 vec_col)]
-        p2 [(- row1 vec_row) (- col1 vec_col)]]
-    [p1 p2]))
-
-(defn get-antinodes-for-target [[target coordinates]]
-  (let [paired-coords (every-pair coordinates)
-        all-anti (apply concat (map get-antinodes paired-coords))]
-    all-anti))
-
 (defn is-inside? [[row col] matrix]
   (and
    (>= row 0)
@@ -40,12 +29,21 @@
    (< row (count matrix))
    (< col (count (get matrix row)))))
 
+(defn get-antinodes [[[row1 col1] [row2 col2]] matrix]
+  (let [[vec_row vec_col] [(- row2 row1) (- col2 col1)]
+        p1 [(+ row2 vec_row) (+ col2 vec_col)]
+        p2 [(- row1 vec_row) (- col1 vec_col)]]
+    (filter #(is-inside? %1 matrix) [p1 p2])))
 
-(defn solve [[signal-to-locations matrix]]
-  (let [signal-to-antinodes (map get-antinodes-for-target signal-to-locations)
-        all-antinodes (set (apply concat signal-to-antinodes))
-        bounded-antinodes (filter #(is-inside? %1 matrix) all-antinodes)]
-    (count bounded-antinodes)))
+(defn get-antinodes-for-target [coordinates matrix get-anti-fn]
+  (let [paired-coords (every-pair coordinates)
+        all-anti (apply concat (map #(get-anti-fn %1 matrix) paired-coords))]
+    all-anti))
+
+(defn solve [[signal-to-locations matrix] get-anti-fn]
+  (let [signal-to-antinodes (map #(get-antinodes-for-target (second %1) matrix get-anti-fn) signal-to-locations)
+        all-antinodes (set (apply concat signal-to-antinodes))] 
+    (count all-antinodes)))
 
 (defn part1 
   ([] (part1 "day08/input.txt"))
@@ -53,7 +51,7 @@
   (-> file-name
       (utils/read-file-lines)
       (parse-input)
-      (solve))))
+      (solve get-antinodes))))
 
 (defn get-in-direction [[row col] [v-row v-col] matrix]
   (->> (iterate (fn [[r c]] [(+ r v-row) (+ c v-col)]) [row col])
@@ -65,20 +63,10 @@
         backward-points (get-in-direction [row1 col1] [(- vec_row) (- vec_col)] matrix)]
     (concat backward-points forward-points)))
 
-(defn get-antinodes-for-target2 [[target coordinates] matrix]
-  (let [paired-coords (every-pair coordinates)
-        all-anti (apply concat (map #(get-antinodes2 %1 matrix) paired-coords))]
-    all-anti))
-
-(defn solve2 [[signal-to-locations matrix]]
-  (let [signal-to-antinodes (map #(get-antinodes-for-target2 %1 matrix) signal-to-locations)
-        all-antinodes (set (apply concat signal-to-antinodes))] 
-    (count all-antinodes)))
-
 (defn part2 
   ([] (part2 "day08/input.txt"))
   ([file-name]
   (-> file-name
       (utils/read-file-lines)
       (parse-input)
-      (solve2))))
+      (solve get-antinodes2))))
