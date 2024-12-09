@@ -66,8 +66,7 @@
 (defn compress-tail [row target n] 
   (loop [pending row, out []]
     (cond 
-      ;; (empty? pending) [(drop-last n row), (repeat n target)]
-      ;; (= target "#") [(drop-last row) [target]]
+      (= target "#") [row (list target)]
       (empty? pending) [out (repeat n target)]
       (not= (first pending) "#") (recur (rest pending) (conj out (first pending)))
       ;; first = "#"
@@ -75,19 +74,20 @@
               (if (>= slots n)
                 [(concat out
                          (repeat n target)
-                         (drop n (drop-last n pending))) []]
+                         (drop n (drop-last n pending))
+                         (repeat n "#")) []]
                 (recur (drop slots pending) (into out (take slots pending)) ))
               )
       )))
 
 (defn compress2 [row]
   (let [last-element (last row)
-        [next-row unmatched] (compress-tail row
-                                last-element 
-                                 (count-first-n (reverse row) last-element))]
-    (println "pre: " row )
-    (println "post: " next-row )
-    (println "unmatched: " unmatched "\n") 
+        [next-row unmatched] (compress-tail row 
+                                            last-element 
+                                            (count-first-n (reverse row) last-element))]
+    ;; (println "pre: " row )
+    ;; (println "post: " next-row )
+    ;; (println "unmatched: " unmatched "\n") 
 
     (if (and 
          (= row next-row)
@@ -95,15 +95,12 @@
       row
       (if (empty? unmatched) 
         (compress2 next-row)
-        (concat (compress2 (drop-last (count unmatched) next-row)) unmatched))
-    )))
+        (concat (compress2 (drop-last (count unmatched) next-row)) unmatched)))))
 
 (defn solve2 [[occupied free]]
   (let [combined (combine occupied free)
         compressed (compress2 combined)
-        k (println compressed)
         clean-compressed (map #(if (= %1 "#") 0 %1) compressed)
-        k2 (println clean-compressed)
         check (checksum clean-compressed)]
     check))
 
@@ -116,11 +113,3 @@
       (utils/read-file)
       (parse-input)
       (solve2))))
-
-(part2 "day09/ex1.txt")
-
-(compress-tail '(0 0 "#" "#" "#" 1 1 "#" "#" 2 2) 2 4)
-
-(concat [1 2 3] [4 5 6])
-
-(into [1 2 3] '(4 5 6))
