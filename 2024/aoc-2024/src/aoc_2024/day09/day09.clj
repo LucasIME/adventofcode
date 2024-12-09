@@ -66,7 +66,9 @@
 (defn compress-tail [row target n] 
   (loop [pending row, out []]
     (cond 
-      (empty? pending) [(drop-last n row), (repeat n target)]
+      ;; (empty? pending) [(drop-last n row), (repeat n target)]
+      ;; (= target "#") [(drop-last row) [target]]
+      (empty? pending) [out (repeat n target)]
       (not= (first pending) "#") (recur (rest pending) (conj out (first pending)))
       ;; first = "#"
       :else (let [slots (count-first-n pending "#")]
@@ -74,22 +76,28 @@
                 [(concat out
                          (repeat n target)
                          (drop n (drop-last n pending))) []]
-                (recur (drop slots pending) (concat out (take slots pending)) ))
+                (recur (drop slots pending) (into out (take slots pending)) ))
               )
       )))
 
 (defn compress2 [row]
-  (let [[next-row unmatched] (compress-tail row
-                                 (last row)
-                                 (count-first-n (reverse row) (last row)))]
+  (let [last-element (last row)
+        [next-row unmatched] (compress-tail row
+                                last-element 
+                                 (count-first-n (reverse row) last-element))]
     (println "pre: " row )
     (println "post: " next-row )
-    (println "unmatched: " unmatched "\n")
+    (println "unmatched: " unmatched "\n") 
 
-    (if (= row next-row)
+    (if (and 
+         (= row next-row)
+         (empty? unmatched))
       row
-      (concat (compress2 next-row) unmatched))))
-              
+      (if (empty? unmatched) 
+        (compress2 next-row)
+        (concat (compress2 (drop-last (count unmatched) next-row)) unmatched))
+    )))
+
 (defn solve2 [[occupied free]]
   (let [combined (combine occupied free)
         compressed (compress2 combined)
@@ -98,6 +106,8 @@
         k2 (println clean-compressed)
         check (checksum clean-compressed)]
     check))
+
+(concat [1 2 3] (take 5 '(1 2 3 4 5 6 7)))
 
 (defn part2 
   ([] (part2 "day09/input.txt"))
@@ -112,3 +122,5 @@
 (compress-tail '(0 0 "#" "#" "#" 1 1 "#" "#" 2 2) 2 4)
 
 (concat [1 2 3] [4 5 6])
+
+(into [1 2 3] '(4 5 6))
