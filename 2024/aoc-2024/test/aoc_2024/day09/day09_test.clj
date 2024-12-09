@@ -6,6 +6,6 @@
       (testing "Day 09 ex1"
         (is (= 1928 (part1 "day09/ex1.txt")))))
 
-(deftest day09-part1-test
+(deftest ^:slow day09-part1-test
       (testing "Day 09 part1"
-        (is (= -1 (part1)))))
+        (is (= 6242766523059 (part1)))))

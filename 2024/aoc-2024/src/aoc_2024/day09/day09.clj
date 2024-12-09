@@ -11,27 +11,28 @@
     [occupied free]))
 
 (defn combine [v1 v2]
-  (loop [l1 v1, l2 v2, out '()]
+  (loop [l1 v1, l2 v2, out []]
     (cond
-      (empty? l1) (reverse out)
-      :else (recur (drop 1 l1) (drop 1 l2) (concat
-                                            (repeat (first l2) "#")
-                                            (repeat (first l1) (- (count v1) (count l1)))
-                                            out)))))
+      (empty? l1) out
+      :else (recur 
+             (rest l1) 
+             (rest l2) 
+             (into out (concat (repeat (first l1) (- (count v1) (count l1))) 
+                               (repeat (first l2) "#") 
+                     ))))))
 
 (defn compress2 [row]
   (loop [pending row, rev (reverse row), out '(), tail-to-ignore 0]
     (cond
       (empty? pending) (reverse out)
       (>= tail-to-ignore (count pending)) (reverse out)
-      (= "#" (first rev)) (recur pending (drop 1 rev) out (inc tail-to-ignore))
-      (not= "#" (first pending)) (recur 
-                                  (drop 1 pending) 
-                                  rev 
-                                  (conj out (first pending))
-                                  tail-to-ignore)
-      :else (recur (drop 1 pending)
-                   (drop 1 rev)
+      (= "#" (first rev)) (recur pending (rest rev) out (inc tail-to-ignore))
+      (not= "#" (first pending)) (recur (rest pending) 
+                                        rev 
+                                        (conj out (first pending)) 
+                                        tail-to-ignore)
+      :else (recur (rest pending)
+                   (rest rev)
                    (conj out (first rev))
                    (inc tail-to-ignore)))))
 
@@ -41,12 +42,9 @@
        (reduce +)))
 
 (defn solve [[occupied free]]
-  (println occupied free)
   (let [combined (combine occupied free)
         compressed (compress2 combined)
         check (checksum compressed)]
-    (println combined)
-    (println compressed)
     check))
 
 (defn part1 
