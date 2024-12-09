@@ -55,10 +55,48 @@
       (parse-input)
       (solve))))
 
+(defn count-first-n [coll target]
+  (loop [v coll, out 0]
+    (cond 
+      (empty? v) out 
+      (= (first v) target) (recur (rest v) (inc out)) 
+      :else out)))
+
+;; Should return (new-row, not-matched)
+(defn compress-tail [row target n] 
+  (loop [pending row, out []]
+    (cond 
+      (empty? pending) [(drop-last n row), (repeat n target)]
+      (not= (first pending) "#") (recur (rest pending) (conj out (first pending)))
+      ;; first = "#"
+      :else (let [slots (count-first-n pending "#")]
+              (if (>= slots n)
+                [(concat out
+                         (repeat n target)
+                         (drop n (drop-last n pending))) []]
+                (recur (drop slots pending) (concat out (take slots pending)) ))
+              )
+      )))
+
+(defn compress2 [row]
+  (let [[next-row unmatched] (compress-tail row
+                                 (last row)
+                                 (count-first-n (reverse row) (last row)))]
+    (println "pre: " row )
+    (println "post: " next-row )
+    (println "unmatched: " unmatched "\n")
+
+    (if (= row next-row)
+      row
+      (concat (compress2 next-row) unmatched))))
+              
 (defn solve2 [[occupied free]]
   (let [combined (combine occupied free)
-        compressed (compress combined)
-        check (checksum compressed)]
+        compressed (compress2 combined)
+        k (println compressed)
+        clean-compressed (map #(if (= %1 "#") 0 %1) compressed)
+        k2 (println clean-compressed)
+        check (checksum clean-compressed)]
     check))
 
 (defn part2 
@@ -68,3 +106,9 @@
       (utils/read-file)
       (parse-input)
       (solve2))))
+
+(part2 "day09/ex1.txt")
+
+(compress-tail '(0 0 "#" "#" "#" 1 1 "#" "#" 2 2) 2 4)
+
+(concat [1 2 3] [4 5 6])
