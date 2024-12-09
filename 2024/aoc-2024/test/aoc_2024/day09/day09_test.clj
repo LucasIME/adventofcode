@@ -4,7 +4,7 @@
 
 (deftest day09-part1-ex1-test
       (testing "Day 09 ex1"
-        (is (= 14 (part1 "day09/ex1.txt")))))
+        (is (= 1928 (part1 "day09/ex1.txt")))))
 
 (deftest day09-part1-test
       (testing "Day 09 part1"
