@@ -1,0 +1,11 @@
+(ns aoc-2024.day09.day09-test
+  (:require [clojure.test :refer :all]
+            [aoc-2024.day09.day09 :refer :all]))
+
+(deftest day09-part1-ex1-test
+      (testing "Day 09 ex1"
+        (is (= 14 (part1 "day09/ex1.txt")))))
+
+(deftest day09-part1-test
+      (testing "Day 09 part1"
+        (is (= -1 (part1)))))
