@@ -81,25 +81,22 @@
       )))
 
 (defn compress2 [row]
-  (let [last-element (last row)
+  (loop [row row, out []]
+    (let [last-element (last row)
         [next-row unmatched] (compress-tail row 
                                             last-element 
                                             (count-first-n (reverse row) last-element))]
-    ;; (println "pre: " row )
-    ;; (println "post: " next-row )
-    ;; (println "unmatched: " unmatched "\n") 
-
     (if (and 
          (= row next-row)
-         (empty? unmatched))
-      row
+         (empty? unmatched)) 
+      (concat row out)
       (if (empty? unmatched) 
-        (compress2 next-row)
-        (concat (compress2 (drop-last (count unmatched) next-row)) unmatched)))))
+        (recur next-row out)
+        (recur (drop-last (count unmatched) next-row) (concat out unmatched)))))))
 
 (defn solve2 [[occupied free]]
   (let [combined (combine occupied free)
-        compressed (compress2 combined)
+        compressed (reverse (compress2 combined))
         clean-compressed (map #(if (= %1 "#") 0 %1) compressed)
         check (checksum clean-compressed)]
     check))
