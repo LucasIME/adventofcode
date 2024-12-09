@@ -21,7 +21,7 @@
                                (repeat (first l2) "#") 
                      ))))))
 
-(defn compress2 [row]
+(defn compress [row]
   (loop [pending row, rev (reverse row), out '(), tail-to-ignore 0]
     (cond
       (empty? pending) (reverse out)
@@ -43,7 +43,7 @@
 
 (defn solve [[occupied free]]
   (let [combined (combine occupied free)
-        compressed (compress2 combined)
+        compressed (compress combined)
         check (checksum compressed)]
     check))
 
@@ -54,3 +54,17 @@
       (utils/read-file)
       (parse-input)
       (solve))))
+
+(defn solve2 [[occupied free]]
+  (let [combined (combine occupied free)
+        compressed (compress combined)
+        check (checksum compressed)]
+    check))
+
+(defn part2 
+  ([] (part2 "day09/input.txt"))
+  ([file-name]
+  (-> file-name
+      (utils/read-file)
+      (parse-input)
+      (solve2))))

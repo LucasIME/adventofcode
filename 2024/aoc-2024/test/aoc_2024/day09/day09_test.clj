@@ -9,3 +9,7 @@
 (deftest ^:slow day09-part1-test
       (testing "Day 09 part1"
         (is (= 6242766523059 (part1)))))
+
+(deftest day09-part2-ex1-test
+      (testing "Day 09 ex1 part2"
+        (is (= 2858 (part1 "day09/ex1.txt")))))
