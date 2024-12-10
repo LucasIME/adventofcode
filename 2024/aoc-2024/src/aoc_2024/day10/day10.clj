@@ -14,19 +14,19 @@
                          ) )
             (map (fn [[rv rc]] [(+ row rv) (+ col rc)]) directions))))
 
-(defn get-trail-score 
+(defn count-trail-peaks 
   [grid [row col] out]
   (let [cur (Integer/parseInt (get-in grid [row col]))
         valid-neighs (get-neighs grid [row col])] 
     (if (= 9 cur) 
       (conj out [row col]) 
-      (reduce set/union (map (fn [[r c]] (get-trail-score grid [r c] out)) valid-neighs)))))
+      (reduce set/union (map (fn [[r c]] (count-trail-peaks grid [r c] out)) valid-neighs)))))
 
 (defn map-trails [grid]
   (for [row (range (count grid))
         col (range (count (get grid row))) 
         :when (= "0" (get-in grid [row col]))]
-    (count  (get-trail-score grid [row col] #{}))))
+    (count  (count-trail-peaks grid [row col] #{}))))
 
 (defn solve [grid]
   (let [trails (map-trails grid)]
@@ -39,3 +39,34 @@
       (utils/read-file-lines)
       (parse-input)
       (solve))))
+
+(defn count-trail-path 
+  [grid [row col]]
+  (let [
+        cur (Integer/parseInt (get-in grid [row col]))
+        valid-neighs (get-neighs grid [row col])
+        ]
+  (if (= 9 cur)
+    1
+    (reduce + (map (fn [[r c]] (count-trail-path grid [r c])) valid-neighs)))))
+
+(defn map-trails2 [grid]
+  (for [row (range (count grid))
+        col (range (count (get grid row))) 
+        :when (= "0" (get-in grid [row col]))]
+      (count-trail-path grid [row col])))
+
+(defn solve2 [grid]
+  (let [trails (map-trails2 grid)]
+    (reduce + trails)))
+
+
+(defn part2 
+  ([] (part2 "day10/input.txt"))
+  ([file-name]
+  (-> file-name
+      (utils/read-file-lines)
+      (parse-input)
+      (solve2))))
+
+(part2 "day10/ex5.txt")
