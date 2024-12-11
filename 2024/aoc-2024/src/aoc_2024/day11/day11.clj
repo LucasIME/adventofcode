@@ -20,13 +20,23 @@
       (= (rem digits 2) 0) (split stone digits)
       :else [(* 2024 stone)])))
 
+(defn pair-list-to-map [pair-list]
+  (reduce (fn [accumulator [k v]] 
+            (update accumulator k (fnil + 0) v)) 
+          {} 
+          pair-list))
+
 (defn blink [input]
-  (mapcat blink-stone input))
+  (let [new-values-and-times (mapcat (fn [[k freq]] 
+                                    (map (fn [new-stone] [new-stone freq])  
+                                         (blink-stone k))) 
+                                  input)] 
+    (pair-list-to-map new-values-and-times)))
 
 (defn solve [input n]
-  (loop [stones input, remaining n]
+  (loop [stones (frequencies input), remaining n]
     (cond 
-      (= remaining 0) (count stones) 
+      (= remaining 0) (reduce + (map second stones)) 
       :else (recur (blink stones) (dec remaining)))))
 
 (defn part1 

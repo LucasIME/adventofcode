@@ -13,3 +13,7 @@
 (deftest day11-part1-test
       (testing "Day 11 part1"
         (is (= 172484 (part1)))))
+
+(deftest day11-part2-test
+      (testing "Day 11 part2"
+        (is (= 205913561055242 (part1 "day11/input.txt" 75)))))
