@@ -42,7 +42,7 @@
   (* (count island)
      (perimeter grid island)))
 
-(defn explore-grid [grid]
+(defn solve [grid scoring-fn]
   (let [positions (for [row (range (count grid))
                         col (range (count (get grid row)))]
                     [row col])]
@@ -51,10 +51,7 @@
         (empty? to-visit) score
         (contains? all-visited (first to-visit)) (recur (rest to-visit) all-visited score)
         :else (let [island (explore grid (first to-visit))]
-                (recur (rest to-visit) (set/union all-visited (set island)) (+ score (island-score grid island))))))))
-
-(defn solve [grid]
-  (explore-grid grid))
+                (recur (rest to-visit) (set/union all-visited (set island)) (+ score (scoring-fn grid island))))))))
 
 (defn part1 
   ([] (part1 "day12/input.txt"))
@@ -62,4 +59,19 @@
   (-> file-name
       (utils/read-file-lines)
       (parse-input)
-      (solve))))
+      (solve island-score))))
+
+(defn sides [grid island]
+  0)
+
+(defn island-score2 [grid island]
+  (* (count island)
+     (sides grid island)))
+
+(defn part2 
+  ([] (part2 "day12/input.txt"))
+  ([file-name]
+  (-> file-name
+      (utils/read-file-lines)
+      (parse-input)
+      (solve island-score2))))
