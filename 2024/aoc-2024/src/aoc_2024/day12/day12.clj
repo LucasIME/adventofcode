@@ -16,16 +16,18 @@
           (get-neigh-pos row col)))
 
 (defn explore 
-  ([grid [row col]] (explore grid row col #{}))
-  ([grid row col visited]
-   (if (contains? visited [row col]) visited 
-     (let [valid-neighs (get-valid-neighs grid row col)
-           visited-with-me (conj visited [row col])]
-       
-       (set/union visited-with-me 
-                  (reduce set/union 
-                          (map #(explore grid (first %1) (second %1) visited-with-me) 
-                               valid-neighs)))))))
+  ([grid [row col]] (explore grid (list [row col]) #{}))
+  ([grid pending visited]
+   (cond 
+     (empty? pending) visited
+     (contains? visited (first pending)) (explore grid (rest pending) visited)
+     :else (let [[row col] (first pending) 
+                 valid-neighs (get-valid-neighs grid row col)
+                 new-pending (concat valid-neighs (rest pending))
+                 visited-with-me (conj visited [row col])] 
+             (explore grid 
+                      new-pending
+                      visited-with-me)))))
 
 (defn perimiter-pos [grid [row col]]
   (let [cur-val (get-in grid [row col])]
