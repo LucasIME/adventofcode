@@ -4,15 +4,15 @@
 
 (deftest day12-part1-ex1-test
       (testing "Day 12 ex1"
-        (is (= 140 (part1 "day11/ex1.txt")))))
+        (is (= 140 (part1 "day12/ex1.txt")))))
 
 (deftest day12-part1-ex2-test
       (testing "Day 12 ex2"
-        (is (= 772 (part1 "day11/ex2.txt")))))
+        (is (= 772 (part1 "day12/ex2.txt")))))
 
 (deftest day12-part1-ex3-test
       (testing "Day 12 ex3"
-        (is (= 1930 (part1 "day11/ex3.txt")))))
+        (is (= 1930 (part1 "day12/ex3.txt")))))
 
 (deftest day12-part1-test
       (testing "Day 12 part1"
