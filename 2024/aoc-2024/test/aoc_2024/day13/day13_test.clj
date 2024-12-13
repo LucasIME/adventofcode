@@ -9,3 +9,7 @@
 (deftest day13-part1-test
       (testing "Day 13 part1"
         (is (= 29711 (part1)))))
+
+(deftest day13-part2-test
+      (testing "Day 13 part2"
+        (is (= 94955433618919 (part2)))))
