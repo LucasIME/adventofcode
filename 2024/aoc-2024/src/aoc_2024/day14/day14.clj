@@ -49,3 +49,53 @@
       (utils/read-file-lines)
       (parse-input)
       (solve rows cols))))
+
+(defn print-grid [pos-map rows cols]
+  (let [grid (for [row (range rows)] 
+               (map #(if (contains? pos-map [%1 row]) "#" ".") 
+                    (range cols)))
+        str-array (map str/join grid)]
+    (doseq [line str-array] (println line))))
+
+(defn into-map [positions]
+  (reduce (fn [acc pos]
+            (assoc acc [(get pos :x) (get pos :y)] 1))  
+          {} 
+          positions))
+
+(defn count-neighs [pos pos-map]
+  (let [row (get pos :y)
+        col (get pos :x)]
+    (count (for [newrow (range (dec row) (+ 2 row)) 
+                 newcol (range (dec col) (+ 2 col)) 
+                 :when (and (or (not= row newrow) 
+                                (not= col newcol)) 
+                            (contains? pos-map [newcol newrow]))] 
+             1)))
+  
+  )
+
+(defn grid-neigh-count [positions]
+  (let [pos-map (into-map positions)
+        neigh-count-list (map #(count-neighs %1 pos-map) positions)]
+    (reduce + neigh-count-list)))
+
+
+(defn solve2 [robots rows cols]
+  (let [all-positions (for [time (range 10000)] 
+                        (list time
+                        (map #(position-after %1 time rows cols)
+                             robots)))
+        neigh-count-by-position (map #(list (second %1) (grid-neigh-count (second %1)) (first %1)) 
+                                     all-positions)
+        [best-pos freq final-time] (apply max-key second neigh-count-by-position)]
+    (print-grid (into-map best-pos) rows cols)
+    final-time))
+
+(defn part2 
+  ([] (part2 "day14/input.txt" 103 101))
+  ([file-name rows cols]
+  (-> file-name
+      (utils/read-file-lines)
+      (parse-input)
+      (solve2 rows cols))))
