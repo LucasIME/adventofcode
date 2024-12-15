@@ -75,3 +75,38 @@
       (utils/read-file)
       (parse-input)
       (solve))))
+
+(defn scale-row [row]
+  (vec (apply concat 
+         (map (fn [c] 
+                (cond 
+                  (= c "#") ["#" "#"]
+                  (= c "O") ["[" "]"]
+                  (= c ".") ["." "."]
+                  (= c "@") ["@" "."])) 
+              row))))
+
+(defn scale-up [grid]
+ (vec (map scale-row grid)))
+
+(defn parse-input2 [raw-input]
+  (let [[raw-grid raw-moves] (str/split raw-input #"\n\n")
+        grid (utils/to-char-matrix (str/split raw-grid #"\n"))
+        scaled-grid (scale-up grid)
+        [start-pos] (get-start-pos scaled-grid)
+        clean-grid (assoc-in scaled-grid start-pos ".")]
+    [clean-grid (clean-moves raw-moves) start-pos]))
+
+(defn solve2 [[grid moves start-pos]]
+  (print-grid grid)
+  )
+
+(defn part2 
+  ([] (part2 "day15/input.txt"))
+  ([file-name]
+  (-> file-name
+      (utils/read-file)
+      (parse-input2)
+      (solve2))))
+
+(part2 "day15/ex1.txt")
