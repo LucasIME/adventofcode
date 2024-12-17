@@ -37,4 +37,4 @@
 
 (deftest day17-part2-test
       (testing "Day 17 part2"
-        (is (= -1 (part2)))))
+        (is (= 164278899142333 (part2)))))

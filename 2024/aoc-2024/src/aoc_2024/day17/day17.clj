@@ -105,12 +105,15 @@
        (solve))))
 
 (defn solve2 [[registers program]]
-  (loop [registers registers, program program, a-val 0]
+  (loop [registers registers, program program, a-val 0, prefix-count 1]
     (let [updated-registers (assoc registers "A" a-val)
-          [new-state output] (run updated-registers program 0 [])]
-      (if (= output program)
-        a-val
-        (recur registers program (inc a-val))))))
+          [new-state output] (run updated-registers program 0 [])
+          target (take-last prefix-count program)]
+      (if (= (take prefix-count output) target)
+        (if (= prefix-count (count program))
+          a-val
+          (recur registers program (* a-val 8) (inc prefix-count)))
+        (recur registers program (inc a-val) prefix-count)))))
 
 (defn part2 
   ([] (part2 "day17/input.txt"))
