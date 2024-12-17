@@ -96,7 +96,6 @@
   (let [[new-state output] (run registers program 0 [])]
     (str/join "," output)))
 
-
 (defn part1 
   ([] (part1 "day17/input.txt"))
   ([file-name]
@@ -104,3 +103,19 @@
        (utils/read-file)
        (parse-input)
        (solve))))
+
+(defn solve2 [[registers program]]
+  (loop [registers registers, program program, a-val 0]
+    (let [updated-registers (assoc registers "A" a-val)
+          [new-state output] (run updated-registers program 0 [])]
+      (if (= output program)
+        a-val
+        (recur registers program (inc a-val))))))
+
+(defn part2 
+  ([] (part2 "day17/input.txt"))
+  ([file-name]
+   (-> file-name
+       (utils/read-file)
+       (parse-input)
+       (solve2))))

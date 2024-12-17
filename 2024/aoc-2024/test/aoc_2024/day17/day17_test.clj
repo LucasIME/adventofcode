@@ -30,3 +30,11 @@
 (deftest day17-part1-test
       (testing "Day 17 part1"
         (is (= "7,5,4,3,4,5,3,4,6" (part1)))))
+
+(deftest day17-part2-ex2-test
+      (testing "Day 17 ex2 part 2"
+        (is (= 117440 (part2 "day17/ex2.txt")))))
+
+(deftest day17-part2-test
+      (testing "Day 17 part2"
+        (is (= -1 (part2)))))
