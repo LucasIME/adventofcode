@@ -1,0 +1,64 @@
+(ns aoc-2024.day18.day18
+  (:require [aoc-2024.utils.utils :as utils]
+            [clojure.string :as str]))
+
+(defn parse-input [lines]
+  (let [raw-coords (map #(str/split %1 #",") lines)
+        coords (map #(map (fn [n] (Integer/parseInt n)) %1) raw-coords)
+        row-cols (map (fn [[x y]] [y x]) coords)]
+  row-cols))
+
+(def directions [[-1 0] [0 1] [1 0] [0 -1]])
+
+(defn direct-neighs [[row col]]
+  (map (fn [[dr dc]] [(+ row dr) (+ col dc)]) directions))
+
+(defn is-valid? [[row col] rows cols blocked]
+  (and
+   (>= row 0)
+   (>= col 0)
+   (< row rows)
+   (< col cols)
+   (not (contains? blocked [row col]))))
+
+(defn get-valid-neighs [[row col] rows cols blocked]
+  (let [raw-neighs (direct-neighs [row col])]
+    (filter #(is-valid? %1 rows cols blocked) raw-neighs)))
+
+;; (defn bfs [start rows cols blocked dist] 
+;;   (if (= start [(dec rows) (dec cols)]) dist
+;;       (let [new-blocked (conj blocked start)
+;;             neighs (get-valid-neighs start rows cols new-blocked)
+;;             k (println "neighs: " neighs)
+;;             min-dist (apply min (map #(bfs %1 rows cols new-blocked (inc dist)) neighs))]
+;;         min-dist)))
+
+(defn bfs [start rows cols blocked]
+  (println "blocked len: " (count blocked))
+  (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start 0])
+         visited blocked]
+    (println (peek queue) (empty? queue))
+    (let [[cur dist] (peek queue)]
+      (cond 
+        (= cur [(dec rows) (dec cols)]) dist
+        (contains? visited cur) (recur (pop queue) visited)
+        (empty? queue) Integer/MAX_VALUE
+        :else (let [new-visited (conj visited cur)
+                    neighs (get-valid-neighs start rows cols new-visited)
+                    new-q (reduce (fn [acc neigh] (conj acc [neigh (inc dist)])) (pop queue) neighs)]
+                ;; (println cur neighs new-q new-visited)
+                (recur new-q new-visited))))))
+
+(defn solve [fall rows cols target-time]
+  (let [blocked (set (take target-time fall))]
+    (bfs [0 0] rows cols blocked)))
+
+(defn part1 
+  ([] (part1 "day18/input.txt" 71 71 1024))
+  ([file-name rows cols target-time]
+   (-> file-name
+       (utils/read-file-lines)
+       (parse-input)
+       (solve rows cols target-time))))
+
+;; (pop (conj (conj (clojure.lang.PersistentQueue/EMPTY) 0) 1))
