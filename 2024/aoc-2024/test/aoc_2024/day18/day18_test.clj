@@ -14,6 +14,6 @@
       (testing "Day 18 ex1 part2"
         (is (= "6,1" (part2 "day18/ex1.txt" 7 7)))))
 
-(deftest day18-part2-test
+(deftest ^:slow day18-part2-test
       (testing "Day 18 part2"
-        (is (= -1 (part2)))))
+        (is (= "44,64" (part2)))))

@@ -50,15 +50,6 @@
        (parse-input)
        (solve rows cols target-time))))
 
-(defn print-grid [rows cols blocked]
-  (let [grid (for [r (range rows)] 
-               (for [c (range cols)] 
-                 (if (contains? blocked [r c])
-                   "#"
-                   ".")))]
-                   (println "grid: ")
-    (doseq [row grid] (println row))))
-
 (defn solve2 [fall rows cols]
   (loop [n 1]
     (let [raw-blocked (take n fall)
