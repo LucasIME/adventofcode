@@ -25,28 +25,17 @@
   (let [raw-neighs (direct-neighs [row col])]
     (filter #(is-valid? %1 rows cols blocked) raw-neighs)))
 
-;; (defn bfs [start rows cols blocked dist] 
-;;   (if (= start [(dec rows) (dec cols)]) dist
-;;       (let [new-blocked (conj blocked start)
-;;             neighs (get-valid-neighs start rows cols new-blocked)
-;;             k (println "neighs: " neighs)
-;;             min-dist (apply min (map #(bfs %1 rows cols new-blocked (inc dist)) neighs))]
-;;         min-dist)))
-
 (defn bfs [start rows cols blocked]
-  (println "blocked len: " (count blocked))
   (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start 0])
          visited blocked]
-    (println (peek queue) (empty? queue))
     (let [[cur dist] (peek queue)]
       (cond 
         (= cur [(dec rows) (dec cols)]) dist
-        (contains? visited cur) (recur (pop queue) visited)
         (empty? queue) Integer/MAX_VALUE
+        (contains? visited cur) (recur (pop queue) visited)
         :else (let [new-visited (conj visited cur)
-                    neighs (get-valid-neighs start rows cols new-visited)
+                    neighs (get-valid-neighs cur rows cols new-visited)
                     new-q (reduce (fn [acc neigh] (conj acc [neigh (inc dist)])) (pop queue) neighs)]
-                ;; (println cur neighs new-q new-visited)
                 (recur new-q new-visited))))))
 
 (defn solve [fall rows cols target-time]
@@ -60,5 +49,3 @@
        (utils/read-file-lines)
        (parse-input)
        (solve rows cols target-time))))
-
-;; (pop (conj (conj (clojure.lang.PersistentQueue/EMPTY) 0) 1))
