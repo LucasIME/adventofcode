@@ -49,3 +49,33 @@
        (utils/read-file-lines)
        (parse-input)
        (solve rows cols target-time))))
+
+(defn print-grid [rows cols blocked]
+  (let [grid (for [r (range rows)] 
+               (for [c (range cols)] 
+                 (if (contains? blocked [r c])
+                   "#"
+                   ".")))]
+                   (println "grid: ")
+    (doseq [row grid] (println row))))
+
+(defn solve2 [fall rows cols]
+  (loop [n 1]
+    (let [raw-blocked (take n fall)
+          blocked (set raw-blocked)
+          dist (bfs [0 0] rows cols blocked)
+          can-get (not= dist Integer/MAX_VALUE)]
+      (if can-get 
+        (recur (inc n)) 
+        (let [[row col] (last raw-blocked)
+              aoc-coords [col row]
+              formatted-resp (str/join "," aoc-coords)]
+          formatted-resp)))))
+
+(defn part2 
+  ([] (part2 "day18/input.txt" 71 71))
+  ([file-name rows cols]
+   (-> file-name
+       (utils/read-file-lines)
+       (parse-input)
+       (solve2 rows cols))))
