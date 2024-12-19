@@ -14,6 +14,6 @@
       (testing "Day 19 ex1 part 2"
         (is (= 16 (part2 "day19/ex1.txt")))))
 
-(deftest day19-part1-test
+(deftest day19-part2-test
       (testing "Day 19 part2"
-        (is (= -1 (part2)))))
+        (is (= 636483903099279 (part2)))))

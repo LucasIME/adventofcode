@@ -29,18 +29,19 @@
        (parse-input)
        (solve))))
 
-(defn count-valid-ways [design towels]
-  (cond
-    (empty? design) 1
-    :else (let [possible-starts (filter #(str/starts-with? design %1) towels)]
-            (if (empty? possible-starts) 0
-                (reduce + (map #(count-valid-ways (subs design (count %1)) 
-                                                  towels) 
-                               possible-starts))))))
+(def count-valid-ways-memo 
+  (memoize (fn [design towels]  
+             (cond  
+               (empty? design) 1 
+               :else (let [possible-starts (filter #(str/starts-with? design %1) towels)] 
+                       (if (empty? possible-starts) 0 
+                           (reduce + (map #(count-valid-ways-memo (subs design (count %1)) 
+                                                                  towels) 
+                                          possible-starts))))))))
 
 (defn solve2 [[towels designs]]
   (->> designs
-       (map #(count-valid-ways %1 towels))
+       (map #(count-valid-ways-memo %1 towels))
        (reduce +)))
 
 (defn part2 
@@ -50,3 +51,5 @@
        (utils/read-file)
        (parse-input)
        (solve2))))
+
+(part2 "day19/ex1.txt")
