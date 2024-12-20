@@ -64,6 +64,28 @@
                              two-next-vec)]
     (map #(second %1) cheat-neighs)))
 
+(defn manhattan-dist [[row col] [row2 col2]]
+  (+ (Math/abs (- row row2)) (Math/abs (- col col2))))
+
+(defn get-cheat-neighs [grid [start-row start-col] known-dists radius]
+  (for [row (range (- start-row radius) (+ start-row radius 1))
+        col (range (- start-col radius) (+ start-col radius 1))
+        :when (and
+               (not= [row col] [start-row start-col])
+               (contains? known-dists [row col])
+               (not= (get-in grid [row col]) "#")
+               (<= (manhattan-dist [start-row start-col] [row col]) radius))]
+    [row col]))
+
+;;  (let [two-next-vec (map #(get-two-next-in-dir pos %1) directions)
+;;        cheat-neighs (filter (fn [[p1 p2]]
+;;                               (and
+;;                                (= (get-in grid p1) "#")
+;;                                (not= (get-in grid p2) "#")
+;;                                (contains? known-dists p2)))
+;;                             two-next-vec)]
+;;    (map #(second %1) cheat-neighs)))
+
 (defn collect-cheats [grid best-path known-dists]
   (loop [pending best-path, cheats []]
     (cond
@@ -71,7 +93,7 @@
       :else (let [cur (first pending)
                   best-path-size (count best-path)
                   dist-to-source (- best-path-size (known-dists cur) 1)
-                  neighs (get-cheat-neighs grid cur known-dists)
+                  neighs (get-cheat-neighs grid cur known-dists 2)
                   new-cheats (map (fn [cheat-neigh]
                                     (let [new-dist (+ dist-to-source 2 (get known-dists cheat-neigh))]
                                       (- best-path-size new-dist 1))) ;; Not sure why I need the -1 here
