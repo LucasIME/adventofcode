@@ -49,66 +49,43 @@
   (let [pos-and-dist-pairs (map-indexed (fn [idx pos] [pos idx]) path)]
     (into {} pos-and-dist-pairs)))
 
-(defn get-two-next-in-dir [pos dir]
-  (let [p1 (add-pos pos dir)
-        p2 (add-pos p1 dir)]
-    [p1 p2]))
-
-(defn get-cheat-neighs [grid pos known-dists]
-  (let [two-next-vec (map #(get-two-next-in-dir pos %1) directions)
-        cheat-neighs (filter (fn [[p1 p2]]
-                               (and
-                                (= (get-in grid p1) "#")
-                                (not= (get-in grid p2) "#")
-                                (contains? known-dists p2)))
-                             two-next-vec)]
-    (map #(second %1) cheat-neighs)))
-
 (defn manhattan-dist [[row col] [row2 col2]]
   (+ (Math/abs (- row row2)) (Math/abs (- col col2))))
 
 (defn get-cheat-neighs [grid [start-row start-col] known-dists radius]
   (for [row (range (- start-row radius) (+ start-row radius 1))
         col (range (- start-col radius) (+ start-col radius 1))
+        :let [dist (manhattan-dist [start-row start-col] [row col])]
         :when (and
                (not= [row col] [start-row start-col])
                (contains? known-dists [row col])
                (not= (get-in grid [row col]) "#")
-               (<= (manhattan-dist [start-row start-col] [row col]) radius))]
-    [row col]))
+               (<= dist radius))]
+    [[row col] dist]))
 
-;;  (let [two-next-vec (map #(get-two-next-in-dir pos %1) directions)
-;;        cheat-neighs (filter (fn [[p1 p2]]
-;;                               (and
-;;                                (= (get-in grid p1) "#")
-;;                                (not= (get-in grid p2) "#")
-;;                                (contains? known-dists p2)))
-;;                             two-next-vec)]
-;;    (map #(second %1) cheat-neighs)))
-
-(defn collect-cheats [grid best-path known-dists]
+(defn collect-cheats [grid best-path known-dists radius]
   (loop [pending best-path, cheats []]
     (cond
       (empty? pending) cheats
       :else (let [cur (first pending)
                   best-path-size (count best-path)
                   dist-to-source (- best-path-size (known-dists cur) 1)
-                  neighs (get-cheat-neighs grid cur known-dists 2)
-                  new-cheats (map (fn [cheat-neigh]
-                                    (let [new-dist (+ dist-to-source 2 (get known-dists cheat-neigh))]
+                  neighs-and-dist (get-cheat-neighs grid cur known-dists radius)
+                  new-cheats (map (fn [[cheat-neigh cheat-dist]]
+                                    (let [new-dist (+ dist-to-source cheat-dist (get known-dists cheat-neigh))]
                                       (- best-path-size new-dist 1))) ;; Not sure why I need the -1 here
-                                  neighs)
+                                  neighs-and-dist)
                   good-cheats (filter #(> %1 0) new-cheats)
                   new-cheat-out (reduce (fn [acc new] (conj acc new)) cheats good-cheats)]
               (recur (rest pending) new-cheat-out)))))
 
-(defn solve [[grid start target-pos]]
+(defn solve [[grid start target-pos] radius min]
   (let [[shortest prev-map] (shortest-path grid start target-pos)
         best-path (get-path prev-map target-pos)
         position-to-target-dist (pos-to-dist best-path)
-        all-cheats (collect-cheats grid best-path position-to-target-dist)
-        better-than-100-cheats (filter #(>= %1 100) all-cheats)]
-    (count better-than-100-cheats)))
+        all-cheats (collect-cheats grid best-path position-to-target-dist radius)
+        better-than-minimum-cheats (filter #(>= %1 min) all-cheats)]
+    (count better-than-minimum-cheats)))
 
 (defn part1
   ([] (part1 "day20/input.txt"))
@@ -116,4 +93,12 @@
    (-> file-name
        (utils/read-file-lines)
        (parse-input)
-       (solve))))
+       (solve 2 100))))
+
+(defn part2
+  ([] (part2 "day20/input.txt"))
+  ([file-name]
+   (-> file-name
+       (utils/read-file-lines)
+       (parse-input)
+       (solve 20 100))))
