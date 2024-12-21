@@ -49,7 +49,7 @@
     (= dir [1 0]) "v"
     (= dir [0 -1]) "<"))
 
-(defn get-shortest-paths [grid start-pos target-val]
+(defn get-shortest-paths-no-press [grid start-pos target-val]
   (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start-pos 0 []])
          visited #{}
          found-paths []]
@@ -60,7 +60,7 @@
              (> dist (count (first found-paths)))) found-paths
         (= (get-in grid cur) target-val) (recur (pop queue)
                                                 visited
-                                                (conj found-paths (conj path-to-here "A")))
+                                                (conj found-paths path-to-here))
         :else (let [new-visited (conj visited cur)
                     neighs-with-dir (get-direct-neighs-with-dir grid cur)
                     new-q (reduce (fn [acc [neigh dir]] (conj acc [neigh (inc dist) (conj path-to-here (dir-char dir))]))
@@ -68,62 +68,58 @@
                                   neighs-with-dir)]
                 (recur new-q new-visited found-paths))))))
 
-(defn merge-paths [paths-so-far new-paths]
-  (for [path1 paths-so-far
-        path2 new-paths]
-    (into path1 path2)))
+(defn dirpath [grid from to pos-getting-fn]
+  (let [paths (get-shortest-paths-no-press grid (pos-getting-fn from) to)
+        press-paths (map #(vec (concat ["A"] %1 ["A"])) paths)]
+    press-paths))
 
-(defn get-shortest-paths-for-sequence [grid start sequence pos-getting-fn]
-  (loop [cur-pos start
-         pending sequence
-         found-paths [[]]]
-    (cond
-      (empty? pending) found-paths
-      :else
-      (let [cur-target (first pending)
-            paths (get-shortest-paths grid cur-pos cur-target)
-            new-pos (pos-getting-fn cur-target)
-            new-paths (merge-paths found-paths paths)]
-        (recur new-pos (rest pending) new-paths)))))
+(def get-arrow-cost-indirection
+  (memoize (fn [sequence level]
+             (cond
+               (= level 0) (dec (count sequence))
+               :else (let [pairs (partition 2 1 sequence)
+                           good-paths-between-pairs (map (fn [[from to]]
+                                                           (dirpath arrow-grid
+                                                                    from
+                                                                    to
+                                                                    arrow-grid-symbol-to-pos))
+                                                         pairs)
 
-(defn parse-input [lines]
-  lines)
+                           costs-per-path-for-pair (map (fn [paths]
+                                                          (map #(get-arrow-cost-indirection
+                                                                 %1
+                                                                 (dec level))
+                                                               paths))
+                                                        good-paths-between-pairs)
+                           good-paths-cost (map #(apply min %1) costs-per-path-for-pair)
+                           cost (reduce + good-paths-cost)]
+                       cost)))))
 
-(defn solve-line [line]
+(defn get-grid-cost-indirection [line level]
+  (let [pairs (partition 2 1 (conj line "A"))
+        good-paths-between-pairs (map (fn [[from to]]
+                                        (dirpath num-grid
+                                                 from
+                                                 to
+                                                 num-grid-symbol-to-pos))
+                                      pairs)
+        costs-per-path-for-pair (map (fn [paths]
+                                       (map #(get-arrow-cost-indirection %1 level)
+                                            paths))
+                                     good-paths-between-pairs)
+        good-paths-cost (map #(apply min %1) costs-per-path-for-pair)
+        cost (reduce + good-paths-cost)]
+    cost))
+
+(defn solve-line [line n]
   (let [int-line (Integer/parseInt (first (str/split line #"A")))
         line-path (apply list (str/split line #""))
-        shortest-paths-for-num-grid (get-shortest-paths-for-sequence
-                                     num-grid
-                                     [3 2]
-                                     line-path
-                                     num-grid-symbol-to-pos)
-        shortest-paths-for-first-arrow (mapcat #(get-shortest-paths-for-sequence
-                                                 arrow-grid
-                                                 [0 2]
-                                                 %1
-                                                 arrow-grid-symbol-to-pos)
-                                               shortest-paths-for-num-grid)
-
-        shortest-paths-for-second-arrow (mapcat #(get-shortest-paths-for-sequence
-                                                  arrow-grid
-                                                  [0 2]
-                                                  %1
-                                                  arrow-grid-symbol-to-pos)
-                                                shortest-paths-for-first-arrow)
-        shortest-path (reduce
-                       (fn [acc path] (min acc (count path)))
-                       Integer/MAX_VALUE
-                       shortest-paths-for-second-arrow)]
-    ;; (println line)
-    ;; (println (first shortest-paths-for-num-grid))
-    ;; (println (first shortest-paths-for-first-arrow))
-    ;; (println (first shortest-paths-for-second-arrow))
-    ;; (println int-line shortest-path (* int-line shortest-path))
+        shortest-path (get-grid-cost-indirection line-path n)]
     (* int-line shortest-path)))
 
-(defn solve [lines]
+(defn solve [lines n]
   (->> lines
-       (map solve-line)
+       (map #(solve-line %1 n))
        (reduce +)))
 
 (defn part1
@@ -131,5 +127,11 @@
   ([file-name]
    (-> file-name
        (utils/read-file-lines)
-       (parse-input)
-       (solve))))
+       (solve 2))))
+
+(defn part2
+  ([] (part2 "day21/input.txt"))
+  ([file-name]
+   (-> file-name
+       (utils/read-file-lines)
+       (solve 25))))
