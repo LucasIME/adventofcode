@@ -4,27 +4,27 @@
 
 (def directions [[-1 0] [0 1] [1 0] [0 -1]])
 
-(def num-grid [[7 8 9]
-               [4 5 6]
-               [1 2 3]
-               [nil 0 "A"]])
+(def num-grid [["7" "8" "9"]
+               ["4" "5" "6"]
+               ["1" "2" "3"]
+               [nil "0" "A"]])
 
 (defn num-grid-symbol-to-pos [symbol]
   (cond
-    (= symbol 7) [0 0]
-    (= symbol 8) [0 1]
-    (= symbol 9) [0 2]
-    (= symbol 4) [1 0]
-    (= symbol 5) [1 1]
-    (= symbol 6) [1 2]
-    (= symbol 1) [2 0]
-    (= symbol 2) [2 1]
-    (= symbol 3) [2 2]
-    (= symbol 0) [3 1]
+    (= symbol "7") [0 0]
+    (= symbol "8") [0 1]
+    (= symbol "9") [0 2]
+    (= symbol "4") [1 0]
+    (= symbol "5") [1 1]
+    (= symbol "6") [1 2]
+    (= symbol "1") [2 0]
+    (= symbol "2") [2 1]
+    (= symbol "3") [2 2]
+    (= symbol "0") [3 1]
     (= symbol "A") [3 2]))
 
-(def arrow-grid [[nil "^" "A"
-                  "<" "v" ">"]])
+(def arrow-grid [[nil "^" "A"]
+                 ["<" "v" ">"]])
 
 (defn arrow-grid-symbol-to-pos [symbol]
   (cond
@@ -91,11 +91,35 @@
 
 (defn solve-line [line]
   (let [int-line (Integer/parseInt (first (str/split line #"A")))
-        line-path (str/split line #"")
-        shortest-path []]
-    (* int-line (count shortest-path))))
+        line-path (apply list (str/split line #""))
+        shortest-paths-for-num-grid (get-shortest-paths-for-sequence
+                                     num-grid
+                                     [3 2]
+                                     line-path
+                                     num-grid-symbol-to-pos)
+        shortest-paths-for-first-arrow (mapcat #(get-shortest-paths-for-sequence
+                                                 arrow-grid
+                                                 [0 2]
+                                                 %1
+                                                 arrow-grid-symbol-to-pos)
+                                               shortest-paths-for-num-grid)
 
-(str/split "028A" #"")
+        shortest-paths-for-second-arrow (mapcat #(get-shortest-paths-for-sequence
+                                                  arrow-grid
+                                                  [0 2]
+                                                  %1
+                                                  arrow-grid-symbol-to-pos)
+                                                shortest-paths-for-first-arrow)
+        shortest-path (reduce
+                       (fn [acc path] (min acc (count path)))
+                       Integer/MAX_VALUE
+                       shortest-paths-for-second-arrow)]
+    ;; (println line)
+    ;; (println (first shortest-paths-for-num-grid))
+    ;; (println (first shortest-paths-for-first-arrow))
+    ;; (println (first shortest-paths-for-second-arrow))
+    ;; (println int-line shortest-path (* int-line shortest-path))
+    (* int-line shortest-path)))
 
 (defn solve [lines]
   (->> lines
@@ -103,7 +127,7 @@
        (reduce +)))
 
 (defn part1
-  ([] (part1 "day20/input.txt"))
+  ([] (part1 "day21/input.txt"))
   ([file-name]
    (-> file-name
        (utils/read-file-lines)

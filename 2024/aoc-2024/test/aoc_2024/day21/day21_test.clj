@@ -11,8 +11,8 @@
 
 (deftest day21-part1-ex1-test
   (testing "Day 21 ex1"
-    (is (= 126384 (part1 "day20/ex1.txt")))))
+    (is (= 126384 (part1 "day21/ex1.txt")))))
 
 (deftest day21-part1-test
   (testing "Day 21 part1"
-    (is (= -1 (part1)))))
+    (is (= 156714 (part1)))))
