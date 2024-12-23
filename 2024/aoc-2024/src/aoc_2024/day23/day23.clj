@@ -38,3 +38,37 @@
        (utils/read-file-lines)
        (parse-input)
        (solve))))
+
+(defn power-set [coll]
+  (reduce (fn [acc x]
+            (concat acc (map #(conj % x) acc)))
+          [[]]
+          coll))
+
+(defn is-connected-set? [graph key-set]
+  (every? (fn [key]
+            (let [other-keys (disj key-set key)]
+              (every? (fn [key2]
+                        (contains? (get graph key) key2)) other-keys))) key-set))
+
+(defn get-best-connected-set [graph]
+  (let [key-to-powerset (map (fn [[k v]] [k (power-set (conj v k))]) graph)
+        key-to-connected-sets (map (fn [[k v]] [k (filter #(is-connected-set? graph (set %)) v)])
+                                   key-to-powerset)
+        all-valid-connected-set (mapcat (fn [[k v]] v) key-to-connected-sets)
+        largest-valid-connected-set (apply max-key count all-valid-connected-set)]
+    largest-valid-connected-set))
+
+(defn solve2 [graph]
+  (let [graph-set (into {} (map (fn [[k v]] [k (set v)]) graph))
+        best-connected-set (get-best-connected-set graph-set)
+        name (str/join "," (sort best-connected-set))]
+    name))
+
+(defn part2
+  ([] (part2 "day23/input.txt"))
+  ([file-name]
+   (-> file-name
+       (utils/read-file-lines)
+       (parse-input)
+       (solve2))))
