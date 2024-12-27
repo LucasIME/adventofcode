@@ -51,23 +51,23 @@
       :else (let [next-pos (pos-after-dir pos dir)]
               (recur (assoc-in grid pos last) dir next-pos (get-in grid pos))))))
 
-(defn next-grid [grid direction pos]
-  (if (can-go? grid direction pos)
-    [(move grid direction pos) (pos-after-dir pos direction)]
+(defn next-grid [grid direction pos can-move-fun move-fun]
+  (if (can-move-fun grid direction pos)
+    [(move-fun grid direction pos) (pos-after-dir pos direction)]
     [grid pos]))
 
 (defn print-grid [grid]
   (doseq [row grid] (println (str/join row))))
 
-(defn find-final-grid [grid moves start-pos]
+(defn find-final-grid [grid moves start-pos can-move-fun move-fun]
   (loop [grid grid, moves moves, pos start-pos]
     (cond
       (empty? moves) grid 
-      :else (let [[new-grid new-pos] (next-grid grid (first moves) pos)]
+      :else (let [[new-grid new-pos] (next-grid grid (first moves) pos can-move-fun move-fun)]
               (recur new-grid (rest moves) new-pos)))))
 
-(defn solve [[grid moves start-pos]]
-  (let [final-grid (find-final-grid grid moves start-pos)]
+(defn solve [[grid moves start-pos] can-move-fun move-fun]
+  (let [final-grid (find-final-grid grid moves start-pos can-move-fun move-fun)]
     (sum-gps final-grid)))
 
 (defn part1 
@@ -76,7 +76,7 @@
   (-> file-name
       (utils/read-file)
       (parse-input)
-      (solve))))
+      (solve can-go? move))))
 
 (defn scale-row [row]
   (vec (apply concat 
@@ -162,26 +162,10 @@
                             new-grid (assoc-in grid cur-pos last-val)]
                         (recur new-q new-visited new-grid)))))))
 
-(defn next-grid2 [grid direction pos]
-  (if (can-go2? grid direction pos)
-    [(move2 grid direction pos) (pos-after-dir pos direction)]
-    [grid pos]))
-
-(defn find-final-grid2 [grid moves start-pos]
-  (loop [grid grid, moves moves, pos start-pos]
-    (cond
-      (empty? moves) grid 
-      :else (let [[new-grid new-pos] (next-grid2 grid (first moves) pos)]
-              (recur new-grid (rest moves) new-pos)))))
-
-(defn solve2 [[grid moves start-pos]]
-  (let [final-grid (find-final-grid2 grid moves start-pos)]
-    (sum-gps final-grid)))
-
 (defn part2 
   ([] (part2 "day15/input.txt"))
   ([file-name]
   (-> file-name
       (utils/read-file)
       (parse-input2)
-      (solve2))))
+      (solve can-go2? move2))))
