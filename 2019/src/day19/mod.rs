@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::io;
-use std::io::BufRead;
 
 fn parse_instruction(entry: isize) -> (isize, Vec<isize>) {
     let instruction = entry % 100;
@@ -199,8 +197,8 @@ fn parse(input: String) -> HashMap<usize, isize> {
         .collect();
 }
 
-fn main() {
-    let input = read_line();
+pub fn part1() -> i32 {
+    let input = std::fs::read_to_string("resources/day19/day19.txt").unwrap().trim().to_string();
     let op_map = parse(input);
 
     let computer = Computer {
@@ -226,16 +224,5 @@ fn main() {
         }
     }
 
-    println!("{:?}", affected);
-}
-
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
+    return affected;
 }
