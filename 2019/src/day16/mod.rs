@@ -1,6 +1,3 @@
-use std::io;
-use std::io::BufRead;
-
 fn build_pattern(i: usize, size: usize) -> Vec<isize> {
     let zero_v = vec![0];
     let one_v = vec![1];
@@ -51,25 +48,6 @@ fn fft(v: Vec<isize>) -> Vec<isize> {
         .collect();
 }
 
-fn main() {
-    let input = read_line();
-    let mut input_list = parse(input);
-
-    for _ in 0..100 {
-        input_list = fft(input_list);
-    }
-
-    println!(
-        "{}",
-        input_list
-            .iter()
-            .take(8)
-            .map(|x| (*x).to_string())
-            .collect::<Vec<String>>()
-            .join("")
-    );
-}
-
 fn parse(s: String) -> Vec<isize> {
     return s
         .chars()
@@ -77,13 +55,23 @@ fn parse(s: String) -> Vec<isize> {
         .collect();
 }
 
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
+pub fn part1() -> String {
+    let input = std::fs::read_to_string("resources/day16/day16.txt")
+        .unwrap()
+        .trim()
+        .to_string();
+    let mut input_list = parse(input);
+
+    for _ in 0..100 {
+        input_list = fft(input_list);
+    }
+
+    let resp = input_list
+        .iter()
+        .take(8)
+        .map(|x| (*x).to_string())
+        .collect::<Vec<String>>()
+        .join("");
+
+    return resp;
 }
