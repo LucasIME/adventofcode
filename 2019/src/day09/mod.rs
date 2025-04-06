@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::io;
-use std::io::BufRead;
 
 fn parse_instruction(entry: isize) -> (isize, Vec<isize>) {
     let instruction = entry % 100;
@@ -188,8 +186,33 @@ fn parse(input: String) -> HashMap<usize, isize> {
         .collect();
 }
 
-fn main() {
-    let input = read_line();
+pub fn part1() -> isize {
+    let input = std::fs::read_to_string("resources/day09/day09.txt")
+        .unwrap()
+        .trim()
+        .to_string();
+    let op_map = parse(input);
+
+    let mut computer = Computer {
+        input: (1..2).collect::<VecDeque<_>>(),
+        output: vec![],
+        memory: op_map,
+        cur_pos: 0,
+        last_intruction: 0,
+        relative_base_offset: 0,
+    };
+
+    computer.process_until_break();
+
+    let resp = computer.output;
+    return resp.last().unwrap().clone();
+}
+
+pub fn part2() -> isize {
+    let input = std::fs::read_to_string("resources/day09/day09.txt")
+        .unwrap()
+        .trim()
+        .to_string();
     let op_map = parse(input);
 
     let mut computer = Computer {
@@ -204,17 +227,5 @@ fn main() {
     computer.process_until_break();
 
     let resp = computer.output;
-
-    println!("{:?}", resp);
-}
-
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
+    return resp.last().unwrap().clone();
 }
