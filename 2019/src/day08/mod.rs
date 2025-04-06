@@ -1,6 +1,3 @@
-use std::io;
-use std::io::BufRead;
-
 fn get_digit_count(layer: &[u32], digit: u32) -> usize {
     return layer
         .iter()
