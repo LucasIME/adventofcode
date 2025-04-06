@@ -1,6 +1,6 @@
 use std::collections::HashSet;
-use std::io;
-use std::io::BufRead;
+
+use crate::utils;
 
 fn get_ast_pos(map: &Vec<String>) -> Vec<(usize, usize)> {
     return map
@@ -60,21 +60,9 @@ fn get_max_reachable(ast_pos: Vec<(usize, usize)>) -> usize {
     return max;
 }
 
-fn main() {
-    let input = read_input_into_line_array();
+pub fn part1() -> usize {
+    let input = utils::read_lines("resources/day10/day10.txt");
     let ast_pos = get_ast_pos(&input);
 
-    let resp = get_max_reachable(ast_pos);
-
-    println!("{:?}", resp);
-}
-
-fn read_input_into_line_array() -> Vec<String> {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .collect();
+    return get_max_reachable(ast_pos);
 }
