@@ -1,8 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::collections::VecDeque;
-use std::io;
-use std::io::BufRead;
 
 fn parse_instruction(entry: isize) -> (isize, Vec<isize>) {
     let instruction = entry % 100;
@@ -193,8 +192,50 @@ fn parse(input: String) -> HashMap<usize, isize> {
         .collect();
 }
 
-fn main() {
-    let input = read_line();
+pub fn part1() -> usize {
+    let input = std::fs::read_to_string("resources/day13/day13.txt")
+        .unwrap()
+        .trim()
+        .to_string();
+    let op_map = parse(input);
+
+    let mut computer = Computer {
+        input: VecDeque::new(),
+        output: vec![],
+        memory: op_map,
+        cur_pos: 0,
+        last_intruction: 0,
+        relative_base_offset: 0,
+    };
+
+    let mut block_set = HashSet::new();
+
+    loop {
+        computer.process_until_break_or_output();
+        if computer.last_intruction == 99 {
+            break;
+        }
+        let x = computer.get_last_out();
+        computer.process_until_break_or_output();
+        let y = computer.get_last_out();
+        computer.process_until_break_or_output();
+        let tile_id = computer.output.last().unwrap();
+
+        if *tile_id == 2 {
+            block_set.insert((x, y));
+        }
+    }
+
+    let resp = block_set.len();
+
+    return resp;
+}
+
+pub fn part2() -> isize {
+    let input = std::fs::read_to_string("resources/day13/day13.txt")
+        .unwrap()
+        .trim()
+        .to_string();
     let mut op_map = parse(input);
     op_map.insert(0, 2);
 
@@ -238,16 +279,5 @@ fn main() {
         }
     }
 
-    println!("{:?}", score);
-}
-
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
+    return score;
 }
