@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::io;
-use std::io::BufRead;
 
 fn parse_instruction(entry: isize) -> (isize, Vec<isize>) {
     let instruction = entry % 100;
@@ -216,8 +214,11 @@ fn change_pos(cur_pos: (isize, isize), direction: isize) -> (isize, isize) {
     }
 }
 
-fn main() {
-    let input = read_line();
+pub fn part1() -> usize {
+    let input = std::fs::read_to_string("resources/day11/day11.txt")
+        .unwrap()
+        .trim()
+        .to_string();
     let op_map = parse(input);
 
     let mut computer = Computer {
@@ -253,17 +254,83 @@ fn main() {
     }
 
     let resp = colored_set.len();
-
-    println!("{:?}", resp);
+    return resp;
 }
 
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
+fn to_output_matrix(colored_set: HashMap<(isize, isize), isize>) -> String {
+    //Vec<Vec<char>> {
+    let black = ' ';
+    let white = 'W';
+    let flip_y_map: HashMap<_, _> = colored_set
+        .iter()
+        .map(|((x, y), c)| ((*x, -*y), *c))
+        .collect();
+
+    let min_x = flip_y_map.iter().map(|((x, _y), _c)| *x).min().unwrap();
+    let max_x = flip_y_map.iter().map(|((x, _y), _c)| *x).max().unwrap();
+    let min_y = flip_y_map.iter().map(|((_x, y), _c)| *y).min().unwrap();
+    let max_y = flip_y_map.iter().map(|((_x, y), _c)| *y).max().unwrap();
+
+    let norm_max_x: usize = (max_x - min_x + 1) as usize;
+    let norm_max_y: usize = (max_y - min_y + 1) as usize;
+
+    let mut resp = vec![vec![black; norm_max_x]; norm_max_y];
+
+    for ((x, y), c) in flip_y_map {
+        if c == 1 {
+            let norm_x = x - min_x;
+            let norm_y = y - min_y;
+            resp[norm_y as usize][norm_x as usize] = white;
+        }
+    }
+
+    return resp
+        .into_iter()
+        .map(|v| v.into_iter().collect::<String>())
+        .fold("".to_string(), |a, b| a + "\n" + &b);
+}
+
+pub fn part2() -> String {
+    let input = std::fs::read_to_string("resources/day11/day11.txt")
+        .unwrap()
+        .trim()
+        .to_string();
+    let op_map = parse(input);
+
+    let mut computer = Computer {
+        input: (1..2).collect::<VecDeque<_>>(),
+        output: vec![],
+        memory: op_map,
+        cur_pos: 0,
+        last_intruction: 0,
+        relative_base_offset: 0,
+    };
+
+    let mut cur_dir = 0; // 0 = up, 1 = right, 2 = down, 3 = left
+    let mut cur_pos = (0, 0);
+    let mut colored_set = HashMap::new();
+
+    loop {
+        computer.process_until_break_or_output();
+        if computer.last_intruction == 99 {
+            break;
+        }
+
+        let color_to_paint = computer.output.last().unwrap();
+        colored_set.insert(cur_pos, *color_to_paint);
+
+        computer.process_until_break_or_output();
+        let dir_to_turn = computer.output.last().unwrap();
+        cur_dir = change_dir(cur_dir, *dir_to_turn);
+        cur_pos = change_pos(cur_pos, cur_dir);
+
+        computer
+            .input
+            .push_back(*colored_set.get(&cur_pos).unwrap_or(&0));
+    }
+
+    let resp = to_output_matrix(colored_set);
+    println!("{}", resp);
+
+    return resp;
 }
