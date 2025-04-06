@@ -7,4 +7,6 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+fs = "0.0.5"
+itertools = "0.14.0"
 regex = "1.11.1"
