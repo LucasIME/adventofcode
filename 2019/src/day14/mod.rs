@@ -1,6 +1,7 @@
+use std::cmp::Ordering;
 use std::collections::HashMap;
-use std::io;
-use std::io::BufRead;
+
+use crate::utils;
 
 fn build(
     ingredient: &str,
@@ -47,15 +48,6 @@ fn get_ore_for(ingredient: &str, rules: HashMap<String, (Vec<(usize, String)>, u
     );
 }
 
-fn main() {
-    let raw_input = read_input_into_line_array();
-    let creation_rules = parse(raw_input);
-
-    let resp = get_ore_for("FUEL", creation_rules);
-
-    println!("{:?}", resp);
-}
-
 fn parse_ingredient(s: String) -> (usize, String) {
     let mut split = s.split(" ");
     let quantity = split.next().unwrap().parse::<usize>().unwrap();
@@ -84,12 +76,75 @@ fn parse(v: Vec<String>) -> HashMap<String, (Vec<(usize, String)>, usize)> {
         .collect();
 }
 
-fn read_input_into_line_array() -> Vec<String> {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .collect();
+pub fn part1() -> usize {
+    let raw_input = utils::read_lines("resources/day14/day14.txt");
+    let creation_rules = parse(raw_input);
+
+    let resp = get_ore_for("FUEL", creation_rules);
+
+    return resp;
+}
+
+fn build2(
+    ingredient: &str,
+    qty: usize,
+    rules: &HashMap<String, (Vec<(usize, String)>, usize)>,
+    bag: &mut HashMap<String, usize>,
+) -> usize {
+    if ingredient == "ORE" {
+        return qty;
+    }
+
+    let mut current_ingredient_stock = *bag.get(ingredient).unwrap_or(&0);
+    if current_ingredient_stock >= qty {
+        return 0;
+    }
+
+    let (recipe, qty_build_in_one_step) = rules.get(ingredient).unwrap();
+
+    let mut total_ore_needed = 0;
+    let steps =
+        (qty - current_ingredient_stock + qty_build_in_one_step - 1) / qty_build_in_one_step;
+    for (qty_needed, element) in recipe {
+        let ore_for_element = build2(element, *qty_needed * steps, &rules, bag);
+        total_ore_needed += ore_for_element;
+        if element != "ORE" {
+            *bag.get_mut(element).unwrap() -= qty_needed * steps;
+        }
+    }
+    current_ingredient_stock += qty_build_in_one_step * steps;
+    bag.insert(ingredient.to_string(), current_ingredient_stock);
+
+    return total_ore_needed;
+}
+
+fn get_ore_for2(
+    ingredient: &str,
+    qty: usize,
+    rules: &HashMap<String, (Vec<(usize, String)>, usize)>,
+) -> usize {
+    return build2(ingredient, qty, &rules, &mut HashMap::new());
+}
+
+pub fn part2() -> usize {
+    let raw_input = utils::read_lines("resources/day14/day14.txt");
+    let creation_rules = parse(raw_input);
+    let total_ore = 1_000_000_000_000;
+
+    let mut min = 1;
+    let mut max = 100_000_000;
+    let resp = loop {
+        let mid = (max + min) / 2;
+        let ore = get_ore_for2("FUEL", mid, &creation_rules);
+        match ore.cmp(&total_ore) {
+            Ordering::Less => min = mid + 1,
+            Ordering::Greater => max = mid - 1,
+            Ordering::Equal => break mid,
+        }
+        if max < min {
+            break max;
+        }
+    };
+
+    return resp;
 }

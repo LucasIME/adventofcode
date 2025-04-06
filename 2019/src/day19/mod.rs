@@ -198,7 +198,10 @@ fn parse(input: String) -> HashMap<usize, isize> {
 }
 
 pub fn part1() -> i32 {
-    let input = std::fs::read_to_string("resources/day19/day19.txt").unwrap().trim().to_string();
+    let input = std::fs::read_to_string("resources/day19/day19.txt")
+        .unwrap()
+        .trim()
+        .to_string();
     let op_map = parse(input);
 
     let computer = Computer {
