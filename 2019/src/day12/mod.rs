@@ -1,12 +1,27 @@
+use crate::utils::lcm;
 use regex::Regex;
 use std::collections::HashSet;
-use std::io;
-use std::io::BufRead;
 
-#[derive(Debug, Copy, Clone)]
+use crate::utils;
+
+#[derive(Debug, Clone, Copy)]
 struct Planet {
     pos: (isize, isize, isize),
     v: (isize, isize, isize),
+}
+
+impl Planet {
+    fn potential_energy(&self) -> isize {
+        return self.pos.0.abs() + self.pos.1.abs() + self.pos.2.abs();
+    }
+
+    fn kinect_energy(&self) -> isize {
+        return self.v.0.abs() + self.v.1.abs() + self.v.2.abs();
+    }
+
+    fn total_energy(&self) -> isize {
+        return self.potential_energy() * self.kinect_energy();
+    }
 }
 
 fn change_planets_by_gravity(mut p1: Planet, mut p2: Planet) -> (Planet, Planet) {
@@ -58,6 +73,40 @@ fn update_positions(planets: &mut Vec<Planet>) {
     }
 }
 
+fn get_system_energy(planets: Vec<Planet>) -> isize {
+    return planets.iter().map(|p| p.total_energy()).sum();
+}
+
+fn parse_planets(input: Vec<String>) -> Vec<Planet> {
+    let re = Regex::new(r"<x=(.*), y=(.*), z=(.*)>").unwrap();
+    return input
+        .iter()
+        .map(|s| {
+            let groups = re.captures_iter(s).next().unwrap();
+            return Planet {
+                pos: (
+                    groups[1].parse().unwrap(),
+                    groups[2].parse().unwrap(),
+                    groups[3].parse().unwrap(),
+                ),
+                v: (0, 0, 0),
+            };
+        })
+        .collect();
+}
+
+pub fn part1() -> isize {
+    let input = utils::read_lines("resources/day12/day12.txt");
+    let mut planets: Vec<Planet> = parse_planets(input);
+
+    for _ in 0..1000 {
+        apply_gravity(&mut planets);
+        update_positions(&mut planets);
+    }
+
+    return get_system_energy(planets);
+}
+
 fn get_x_state(planets: &Vec<Planet>) -> Vec<(isize, isize)> {
     return planets.iter().map(|p| (p.pos.0, p.v.0)).collect();
 }
@@ -70,17 +119,8 @@ fn get_z_state(planets: &Vec<Planet>) -> Vec<(isize, isize)> {
     return planets.iter().map(|p| (p.pos.2, p.v.2)).collect();
 }
 
-fn lcm(x: usize, y: usize) -> usize {
-    let mut p = (x, y);
-
-    while p.0 > 0 {
-        p = (p.1 % p.0, p.0);
-    }
-    return x / p.1 * y;
-}
-
-fn main() {
-    let input = read_input_into_line_array();
+pub fn part2() -> usize {
+    let input = utils::read_lines("resources/day12/day12.txt");
     let mut planets: Vec<Planet> = parse_planets(input);
 
     let mut seen_x = HashSet::new();
@@ -105,34 +145,5 @@ fn main() {
     }
 
     let resp = lcm(seen_x.len(), lcm(seen_y.len(), seen_z.len()));
-
-    println!("{:?}", resp);
-}
-
-fn parse_planets(input: Vec<String>) -> Vec<Planet> {
-    let re = Regex::new(r"<x=(.*), y=(.*), z=(.*)>").unwrap();
-    return input
-        .iter()
-        .map(|s| {
-            let groups = re.captures_iter(s).next().unwrap();
-            return Planet {
-                pos: (
-                    groups[1].parse().unwrap(),
-                    groups[2].parse().unwrap(),
-                    groups[3].parse().unwrap(),
-                ),
-                v: (0, 0, 0),
-            };
-        })
-        .collect();
-}
-
-fn read_input_into_line_array() -> Vec<String> {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .collect();
+    return resp;
 }
