@@ -1,3 +1,4 @@
+mod intcode;
 pub mod utils;
 
 pub mod day01;
