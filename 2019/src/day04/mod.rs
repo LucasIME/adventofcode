@@ -1,6 +1,5 @@
 use std::cmp;
-use std::io;
-use std::io::BufRead;
+use std::fs;
 
 fn parse(input: String) -> (isize, isize) {
     let split: Vec<isize> = input
@@ -13,7 +12,7 @@ fn parse(input: String) -> (isize, isize) {
 
 fn is_valid_password(n: isize) -> bool {
     let n_str = n.to_string();
-    return has_exact_two_similar_adjacent(&n_str) && doest_not_decrease(&n_str);
+    return two_adjacent_are_the_same(&n_str) && doest_not_decrease(&n_str);
 }
 
 fn doest_not_decrease(s: &str) -> bool {
@@ -26,6 +25,40 @@ fn doest_not_decrease(s: &str) -> bool {
     }
 
     return true;
+}
+
+fn two_adjacent_are_the_same(s: &str) -> bool {
+    let mut last_seen: char = ' ';
+    for c in s.chars() {
+        if c == last_seen {
+            return true;
+        }
+        last_seen = c;
+    }
+    return false;
+}
+
+pub fn part1() -> i32 {
+    let raw_input = fs::read_to_string("resources/day04/day04.txt")
+        .unwrap()
+        .trim()
+        .to_string();
+
+    let (min, max) = parse(raw_input);
+
+    let mut total = 0;
+    for n in min..max + 1 {
+        if is_valid_password(n) {
+            total += 1;
+        }
+    }
+
+    return total;
+}
+
+fn is_valid_password2(n: isize) -> bool {
+    let n_str = n.to_string();
+    return has_exact_two_similar_adjacent(&n_str) && doest_not_decrease(&n_str);
 }
 
 fn has_exact_two_similar_adjacent(s: &str) -> bool {
@@ -46,28 +79,20 @@ fn has_exact_two_similar_adjacent(s: &str) -> bool {
     return last_streak == 2;
 }
 
-fn main() {
-    let raw_input = read_line();
+pub fn part2() -> i32 {
+    let raw_input = fs::read_to_string("resources/day04/day04.txt")
+        .unwrap()
+        .trim()
+        .to_string();
 
     let (min, max) = parse(raw_input);
 
     let mut total = 0;
     for n in min..max + 1 {
-        if is_valid_password(n) {
+        if is_valid_password2(n) {
             total += 1;
         }
     }
 
-    println!("{:?}", total);
-}
-
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
+    return total;
 }
