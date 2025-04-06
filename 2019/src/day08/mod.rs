@@ -1,6 +1,47 @@
 use std::io;
 use std::io::BufRead;
-use std::iter::FromIterator;
+
+fn get_digit_count(layer: &[u32], digit: u32) -> usize {
+    return layer
+        .iter()
+        .filter(|x| **x == digit)
+        .collect::<Vec<_>>()
+        .len();
+}
+
+fn find_layer_with_fewest_0_digits(layers: Vec<&[u32]>) -> &[u32] {
+    let mut min = std::usize::MAX;
+    let mut chosen_layer: &[u32] = &[];
+    for layer in &layers {
+        let count = get_digit_count(&layer, 0);
+        if count < min {
+            min = count;
+            chosen_layer = layer;
+        }
+    }
+
+    return chosen_layer;
+}
+
+pub fn part1() -> usize {
+    let input = std::fs::read_to_string("resources/day08/day08.txt")
+        .unwrap()
+        .trim()
+        .to_string();
+    let parsed_input = parse(input);
+
+    let w = 25;
+    let h = 6;
+    let chunk_size = w * h;
+
+    let layers: Vec<&[u32]> = parsed_input.chunks(chunk_size).collect();
+
+    let chosen_layer = find_layer_with_fewest_0_digits(layers);
+
+    let resp = get_digit_count(&chosen_layer, 1) * get_digit_count(&chosen_layer, 2);
+
+    return resp;
+}
 
 fn merge_layers(layers: Vec<&[u32]>) -> Vec<u32> {
     let mut accumulated_layer: Vec<u32> = (0..layers[0].len()).map(|_| 2).collect();
@@ -36,8 +77,11 @@ fn layer_to_img_str(layer: Vec<u32>, width: usize) -> String {
     );
 }
 
-fn main() {
-    let input = read_line();
+pub fn part2() -> String {
+    let input = std::fs::read_to_string("resources/day08/day08.txt")
+        .unwrap()
+        .trim()
+        .to_string();
     let parsed_input = parse(input);
 
     let w = 25;
@@ -49,21 +93,10 @@ fn main() {
     let merged_layers = merge_layers(layers);
 
     let img_str = layer_to_img_str(merged_layers, w);
-
     println!("{}", img_str);
+    return img_str;
 }
 
 fn parse(input: String) -> Vec<u32> {
     return input.chars().map(|c| c.to_digit(10).unwrap()).collect();
-}
-
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
 }
