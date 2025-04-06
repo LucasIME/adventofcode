@@ -1,7 +1,6 @@
+use crate::utils::read_lines;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::io;
-use std::io::BufRead;
 
 #[derive(Debug)]
 struct Command {
@@ -33,6 +32,81 @@ fn parse(input_array: Vec<String>) -> (Vec<Command>, Vec<Command>) {
     let second_path = get_commands_from_str(&input_array[1]);
 
     return (first_path, second_path);
+}
+
+fn find_closest_intersection(
+    first_path: &Vec<Command>,
+    second_path: &Vec<Command>,
+) -> (isize, isize) {
+    let starting_position = (0, 0);
+
+    let visited_a: HashSet<(isize, isize)> = get_visited_points_from_path(first_path)
+        .keys()
+        .cloned()
+        .collect();
+    let visited_b: HashSet<(isize, isize)> = get_visited_points_from_path(second_path)
+        .keys()
+        .cloned()
+        .collect();
+
+    let mut points_in_common: HashSet<&(isize, isize)> =
+        visited_a.intersection(&visited_b).collect();
+    points_in_common.remove(&starting_position);
+
+    let mut min_dist = isize::max_value();
+    let mut closest_point = (0, 0);
+    for point in points_in_common {
+        let dist = point.0.abs() + point.1.abs();
+
+        if dist < min_dist {
+            closest_point = *point;
+            min_dist = dist;
+        }
+    }
+
+    return closest_point;
+}
+
+pub fn part1() -> isize {
+    let raw_input = read_lines("resources/day03/day03.txt");
+
+    let (first_path, second_path) = parse(raw_input);
+
+    let closest_intersection = find_closest_intersection(&first_path, &second_path);
+
+    let dist = closest_intersection.0.abs() + closest_intersection.1.abs();
+
+    return dist;
+}
+
+fn find_closest_intersection_distance(
+    first_path: &Vec<Command>,
+    second_path: &Vec<Command>,
+) -> isize {
+    let starting_position = (0, 0);
+
+    let visited_with_dist_a = get_visited_points_from_path(first_path);
+    let visited_with_dist_b = get_visited_points_from_path(second_path);
+
+    let visited_a: HashSet<(isize, isize)> = visited_with_dist_a.keys().map(|x| *x).collect();
+    let visited_b: HashSet<(isize, isize)> = visited_with_dist_b.keys().map(|x| *x).collect();
+
+    let mut points_in_common: HashSet<&(isize, isize)> =
+        visited_a.intersection(&visited_b).collect();
+    points_in_common.remove(&starting_position);
+
+    let mut min_dist = isize::max_value();
+    for point in points_in_common {
+        let a_dist = visited_with_dist_a.get(point).unwrap();
+        let b_dist = visited_with_dist_b.get(point).unwrap();
+        let dist = a_dist + b_dist;
+
+        if dist < min_dist {
+            min_dist = dist;
+        }
+    }
+
+    return min_dist;
 }
 
 fn get_visited_points_from_path(path: &Vec<Command>) -> HashMap<(isize, isize), isize> {
@@ -86,52 +160,12 @@ fn get_visited_points_from_path(path: &Vec<Command>) -> HashMap<(isize, isize), 
     return visited;
 }
 
-fn find_closest_intersection_distance(
-    first_path: &Vec<Command>,
-    second_path: &Vec<Command>,
-) -> isize {
-    let starting_position = (0, 0);
+pub fn part2() -> isize {
+    let raw_input = read_lines("resources/day03/day03.txt");
 
-    let visited_with_dist_a = get_visited_points_from_path(first_path);
-    let visited_with_dist_b = get_visited_points_from_path(second_path);
-
-    let visited_a: HashSet<(isize, isize)> = visited_with_dist_a.keys().map(|x| *x).collect();
-    let visited_b: HashSet<(isize, isize)> = visited_with_dist_b.keys().map(|x| *x).collect();
-
-    let mut points_in_common: HashSet<&(isize, isize)> =
-        visited_a.intersection(&visited_b).collect();
-    points_in_common.remove(&starting_position);
-
-    let mut min_dist = isize::max_value();
-    for point in points_in_common {
-        let a_dist = visited_with_dist_a.get(point).unwrap();
-        let b_dist = visited_with_dist_b.get(point).unwrap();
-        let dist = a_dist + b_dist;
-
-        if dist < min_dist {
-            min_dist = dist;
-        }
-    }
-
-    return min_dist;
-}
-
-fn main() {
-    let input = read_input_into_line_array();
-
-    let (first_path, second_path) = parse(input);
+    let (first_path, second_path) = parse(raw_input);
 
     let dist = find_closest_intersection_distance(&first_path, &second_path);
 
-    println!("{:?}", dist);
-}
-
-fn read_input_into_line_array() -> Vec<String> {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .collect();
+    return dist;
 }
