@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::io;
-use std::io::BufRead;
 
 fn parse_instruction(entry: isize) -> (isize, Vec<isize>) {
     let instruction = entry % 100;
@@ -185,10 +183,6 @@ impl Computer {
             self.process_next_op();
         }
     }
-
-    fn get_last_out(&self) -> isize {
-        return *self.output.last().unwrap();
-    }
 }
 
 fn parse(input: String) -> HashMap<usize, isize> {
@@ -256,8 +250,11 @@ fn get_align_sum(grid: Vec<Vec<char>>) -> usize {
     return sum;
 }
 
-fn main() {
-    let input = read_line();
+pub fn part1() -> usize {
+    let input = std::fs::read_to_string("resources/day17/day17.txt")
+        .unwrap()
+        .trim()
+        .to_string();
     let mut op_map = parse(input);
     op_map.insert(0, 2);
 
@@ -273,17 +270,5 @@ fn main() {
     computer.process_until_break();
     let grid = output_to_grid(computer.output);
     let resp = get_align_sum(grid);
-
-    println!("{:?}", resp);
-}
-
-fn read_line() -> String {
-    return io::stdin()
-        .lock()
-        .lines()
-        .map(|res| res.ok())
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
-        .next()
-        .unwrap();
+    return resp;
 }
