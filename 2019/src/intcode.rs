@@ -184,6 +184,16 @@ impl Computer {
         }
     }
 
+    pub fn process_until_break(&mut self) {
+        self.process_next_op();
+        loop {
+            if self.last_intruction == 99 {
+                break;
+            }
+            self.process_next_op();
+        }
+    }
+
     pub fn get_last_out(&self) -> isize {
         return *self.output.last().unwrap();
     }
