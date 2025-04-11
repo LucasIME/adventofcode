@@ -1,15 +1,6 @@
+use crate::intcode::{Computer, parse_opcodes};
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use crate::intcode::Computer;
-
-
-fn parse(input: String) -> HashMap<usize, isize> {
-    return input
-        .split(",")
-        .enumerate()
-        .map(|(i, x)| (i, x.parse::<isize>().unwrap()))
-        .collect();
-}
 
 fn remainder(a: isize, b: isize) -> isize {
     let base = a % b;
@@ -44,7 +35,7 @@ pub fn part1() -> usize {
         .unwrap()
         .trim()
         .to_string();
-    let op_map = parse(input);
+    let op_map = parse_opcodes(input);
 
     let mut computer = Computer {
         input: (0..1).collect::<VecDeque<_>>(),
@@ -120,7 +111,7 @@ pub fn part2() -> String {
         .unwrap()
         .trim()
         .to_string();
-    let op_map = parse(input);
+    let op_map = parse_opcodes(input);
 
     let mut computer = Computer {
         input: (1..2).collect::<VecDeque<_>>(),

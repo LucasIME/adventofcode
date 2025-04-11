@@ -1,14 +1,6 @@
-use std::collections::HashMap;
-use std::collections::VecDeque;
 use crate::intcode::Computer;
-
-fn parse(input: String) -> HashMap<usize, isize> {
-    return input
-        .split(",")
-        .enumerate()
-        .map(|(i, x)| (i, x.parse::<isize>().unwrap()))
-        .collect();
-}
+use crate::intcode::parse_opcodes;
+use std::collections::VecDeque;
 
 fn output_to_grid(out: Vec<isize>) -> Vec<Vec<char>> {
     let whitelisted_chars = [10, 35, 46, 94, 60, 62, 86];
@@ -72,7 +64,7 @@ pub fn part1() -> usize {
         .unwrap()
         .trim()
         .to_string();
-    let mut op_map = parse(input);
+    let mut op_map = parse_opcodes(input);
     op_map.insert(0, 2);
 
     let mut computer = Computer {

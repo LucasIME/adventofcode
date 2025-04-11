@@ -1,21 +1,13 @@
-use std::collections::HashMap;
-use std::collections::VecDeque;
 use crate::intcode::Computer;
-
-fn parse(input: String) -> HashMap<usize, isize> {
-    return input
-        .split(",")
-        .enumerate()
-        .map(|(i, x)| (i, x.parse::<isize>().unwrap()))
-        .collect();
-}
+use crate::intcode::parse_opcodes;
+use std::collections::VecDeque;
 
 pub fn part1() -> i32 {
     let input = std::fs::read_to_string("resources/day19/day19.txt")
         .unwrap()
         .trim()
         .to_string();
-    let op_map = parse(input);
+    let op_map = parse_opcodes(input);
 
     let computer = Computer {
         input: VecDeque::new(),

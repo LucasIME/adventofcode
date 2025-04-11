@@ -1,8 +1,8 @@
-use itertools::Itertools;
-use std::collections::VecDeque;
-use std::collections::HashMap;
-use std::iter::FromIterator;
 use crate::intcode::Computer;
+use itertools::Itertools;
+use std::collections::HashMap;
+use std::collections::VecDeque;
+use std::iter::FromIterator;
 
 fn parse_instruction(entry: isize) -> (isize, Vec<isize>) {
     let instruction = entry % 100;
@@ -176,16 +176,7 @@ pub fn part1() -> isize {
     return resp;
 }
 
-fn parse2(input: String) -> HashMap<usize, isize> {
-    return input
-        .split(",")
-        .enumerate()
-        .map(|(i, x)| (i, x.parse::<isize>().unwrap()))
-        .collect();
-}
-
-// fn find_max_thruster2(opcodes: &mut Vec<isize>) -> isize {
-fn find_max_thruster2(opcodes: &mut HashMap<usize, isize>) ->  isize {
+fn find_max_thruster2(opcodes: &mut HashMap<usize, isize>) -> isize {
     let amp_num: usize = 5;
     let phase = vec![5, 6, 7, 8, 9];
     let mut resp = 0;
@@ -240,7 +231,7 @@ pub fn part2() -> isize {
         .trim()
         .to_string();
 
-    let mut ops = parse2(input);
+    let mut ops = crate::intcode::parse_opcodes(input);
 
     let resp = find_max_thruster2(&mut ops);
 

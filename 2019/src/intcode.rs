@@ -1,5 +1,5 @@
-use std::collections::VecDeque;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct Computer {
@@ -9,6 +9,14 @@ pub struct Computer {
     pub cur_pos: usize,
     pub last_intruction: usize,
     pub relative_base_offset: isize,
+}
+
+pub fn parse_opcodes(input: String) -> HashMap<usize, isize> {
+    return input
+        .split(",")
+        .enumerate()
+        .map(|(i, x)| (i, x.parse::<isize>().unwrap()))
+        .collect();
 }
 
 fn parse_instruction(entry: isize) -> (isize, Vec<isize>) {

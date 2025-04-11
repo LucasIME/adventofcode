@@ -1,23 +1,15 @@
+use crate::intcode::Computer;
+use crate::intcode::parse_opcodes;
 use std::cmp::Ordering;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
-use crate::intcode::Computer;
-
-fn parse(input: String) -> HashMap<usize, isize> {
-    return input
-        .split(",")
-        .enumerate()
-        .map(|(i, x)| (i, x.parse::<isize>().unwrap()))
-        .collect();
-}
 
 pub fn part1() -> usize {
     let input = std::fs::read_to_string("resources/day13/day13.txt")
         .unwrap()
         .trim()
         .to_string();
-    let op_map = parse(input);
+    let op_map = parse_opcodes(input);
 
     let mut computer = Computer {
         input: VecDeque::new(),
@@ -56,7 +48,7 @@ pub fn part2() -> isize {
         .unwrap()
         .trim()
         .to_string();
-    let mut op_map = parse(input);
+    let mut op_map = parse_opcodes(input);
     op_map.insert(0, 2);
 
     let mut computer = Computer {
