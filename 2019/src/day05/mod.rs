@@ -1,5 +1,5 @@
+use crate::intcode::{Computer, parse_opcodes};
 use std::{collections::VecDeque, fs};
-use crate::intcode::{Computer, parse_opcodes};   
 
 pub fn part1() -> isize {
     let input = fs::read_to_string("resources/day05/day05.txt")
