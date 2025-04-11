@@ -51,7 +51,7 @@ pub fn part2() -> i32 {
         relative_base_offset: 0,
     };
 
-    let mut cur= (4, 3);
+    let mut cur = (4, 3);
     let size = 100;
 
     loop {
@@ -88,7 +88,7 @@ fn check_square(computer: &Computer, top_right_pos: (i32, i32), size: i32) -> bo
     let top_left_valid = check_pos_valid(computer, top_left_pos);
     let bot_right_valid = check_pos_valid(computer, bot_right_pos);
     let bot_left_valid = check_pos_valid(computer, bot_left_pos);
-    return top_left_valid &&  bot_right_valid && bot_left_valid;
+    return top_left_valid && bot_right_valid && bot_left_valid;
 }
 
 fn check_pos_valid(computer: &Computer, pos: (i32, i32)) -> bool {
