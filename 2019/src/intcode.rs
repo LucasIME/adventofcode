@@ -205,4 +205,8 @@ impl Computer {
     pub fn get_last_out(&self) -> isize {
         return *self.output.last().unwrap();
     }
+
+    pub fn get_maybe_out(&self) -> Option<isize> {
+        return self.output.last().copied();
+    }
 }
