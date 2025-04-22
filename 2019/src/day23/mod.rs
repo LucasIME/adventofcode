@@ -38,11 +38,10 @@ pub fn part1() -> isize {
             computer.process_until_break_or_out();
             let y = computer.get_last_out();
 
-            pushed_comps.insert(address as usize);
-
             if address == 255 {
                 return y;
             } else if address < 50 && address >= 0 {
+                pushed_comps.insert(address as usize);
                 computers[address as usize].input.push_back(x);
                 computers[address as usize].input.push_back(y);
             }
