@@ -1,11 +1,6 @@
 package q11
 
-import java.io.File
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
+import java.nio.file.Path
 
 private fun process(monkeys: List<Monkey>): Int {
     val rounds = 20
@@ -30,8 +25,8 @@ private fun process(monkeys: List<Monkey>): Int {
     return monkeys.map { it.inspections }.sortedDescending().take(2).reduce { a, b -> a * b }
 }
 
-private fun parseInput(): List<Monkey> {
-    return File("src/main/resources/q11.txt")
+private fun parseInput(inputPath: Path): List<Monkey> {
+    return inputPath.toFile()
         .readLines()
         .chunked(7)
         .map { toMonkey(it) }
@@ -69,4 +64,39 @@ private fun toOperationFunc(s: String): (Long) -> Long {
             else -> throw Exception("Unexpected operation")
         }
     }
+}
+
+fun part1(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+private fun process2(monkeys: List<Monkey>): Long {
+    val rounds = 10000
+    val toDiv = monkeys.map { it.remainder }.reduce { a, b -> a * b }
+    for (i in 1..rounds) {
+        monkeys.forEach { monkey ->
+            val itemsIndex = 0
+            while (itemsIndex < monkey.items.size) {
+                val item = monkey.items[itemsIndex]
+                var newWorry = monkey.operation(item)
+                // We only need to make sure the remainders stays the same, so the number doesn't need to be large
+                newWorry %= toDiv
+                if (monkey.test(newWorry)) {
+                    monkeys[monkey.trueMonkey].items.add(newWorry)
+                } else {
+                    monkeys[monkey.falseMonkey].items.add(newWorry)
+                }
+                monkey.inspections++
+                monkey.items.removeAt(itemsIndex)
+            }
+        }
+    }
+
+    return monkeys.map { it.inspections }.sortedDescending().map { it.toLong() }.take(2).reduce { a, b -> a * b }
+}
+
+fun part2(inputPath: Path): Long {
+    val input = parseInput(inputPath)
+    return process2(input)
 }
