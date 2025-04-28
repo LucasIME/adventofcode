@@ -1,6 +1,5 @@
 package q9
 
-import java.io.File
 import java.lang.Exception
 import java.nio.file.Path
 import kotlin.math.abs
@@ -26,35 +25,6 @@ private fun process(input: List<Command>): Int {
     return  visited.size
 }
 
-private fun getNewTailPosition(
-    tailPos: Pair<Int, Int>,
-    newHeadPos: Pair<Int, Int>
-): Pair<Int, Int> {
-    if (abs(newHeadPos.first - tailPos.first) <= 1
-        && abs(newHeadPos.second - tailPos.second) <= 1) {
-        return tailPos
-    }
-
-    if ((newHeadPos.second - tailPos.second) == 2) {
-        return newHeadPos.first to newHeadPos.second - 1
-    }
-
-    if ((-newHeadPos.second + tailPos.second) == 2) {
-        return newHeadPos.first to newHeadPos.second + 1
-    }
-
-
-    if ((newHeadPos.first- tailPos.first) == 2) {
-        return newHeadPos.first - 1 to newHeadPos.second
-    }
-
-    if (( -newHeadPos.first + tailPos.first) == 2) {
-        return newHeadPos.first + 1 to newHeadPos.second
-    }
-
-    throw Exception("unkonwn movement case")
-}
-
 private fun updatePositions(pos: Pair<Int, Int>, direction: Direction): Pair<Int, Int> {
     return when (direction) {
         Direction.U -> pos.first to pos.second + 1
@@ -76,7 +46,7 @@ fun part1(inputPath: Path): Int {
     return process(input)
 }
 
-private fun getNewTailPosition2(
+private fun getNewTailPosition(
     tailPos: Pair<Int, Int>,
     newHeadPos: Pair<Int, Int>
 ): Pair<Int, Int> {
@@ -125,7 +95,7 @@ private fun process2(input: List<Command>): Int {
                     rope[0] = updatePositions(rope[0], dir)
                 } else {
                     val newPosOfPreviousNode = rope[ropeI - 1]
-                    val newPosOfCurrentNode = getNewTailPosition2(rope[ropeI], newPosOfPreviousNode)
+                    val newPosOfCurrentNode = getNewTailPosition(rope[ropeI], newPosOfPreviousNode)
                     rope[ropeI] = newPosOfCurrentNode
                 }
             }
