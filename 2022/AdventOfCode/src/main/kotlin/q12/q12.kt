@@ -1,11 +1,7 @@
 package q12
 
 import java.io.File
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
+import java.nio.file.Path
 
 private fun process(maze: List<List<Char>>): Int {
     val q = ArrayDeque<Triple<Int, Int, Int>>()
@@ -70,8 +66,62 @@ private fun isValid(maze: List<List<Char>>, row: Int, col: Int): Boolean {
 }
 
 
-private fun parseInput(): List<List<Char>> {
-    return File("src/main/resources/q12.txt")
+private fun parseInput(inputPath: Path): List<List<Char>> {
+    return inputPath.toFile()
         .readLines()
         .map { it.toList() }
+}
+
+fun part1(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+private fun process2(maze: List<List<Char>>): Int {
+    val starts = getAllStarts(maze)
+    return starts.map { getDist(maze, it) }.min()
+}
+
+private fun getAllStarts(maze: List<List<Char>>): List<Pair<Int, Int>> {
+    val resp = mutableListOf<Pair<Int, Int>>()
+    for (i in maze.indices) {
+        for (j in maze[i].indices) {
+            if (maze[i][j] == 'S' || maze[i][j] == 'a') {
+                resp.add(i to j)
+            }
+        }
+    }
+
+    return resp
+}
+
+private fun getDist(maze: List<List<Char>>, start: Pair<Int, Int>): Int {
+    val q = ArrayDeque<Triple<Int, Int, Int>>()
+    q.add(Triple(start.first, start.second, 0))
+    val visited = mutableSetOf<Pair<Int, Int>>()
+    while (q.isNotEmpty()) {
+        val (row, col, dist) = q.removeFirst()
+
+        if (maze[row][col] == 'E') {
+            return dist
+        }
+
+        if (row to col in visited) {
+            continue
+        }
+
+        visited.add(row to col)
+
+        for (neigh in getNeighs(maze, row, col)) {
+            q.add(Triple(neigh.first, neigh.second, dist + 1))
+        }
+
+    }
+
+    return Int.MAX_VALUE
+}
+
+fun part2(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process2(input)
 }
