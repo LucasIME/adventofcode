@@ -1,11 +1,6 @@
 package q7
 
-import java.io.File
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
+import java.nio.file.Path
 
 private fun process(input: FileSystemNode): Int {
     val sizes = mutableListOf<Int>()
@@ -27,8 +22,8 @@ private fun getSizeAndAddToListIfFolder(input: FileSystemNode, out: MutableList<
     return total
 }
 
-private fun parseInput(): FileSystemNode {
-    val lines = File("src/main/resources/q7.txt").readLines()
+private fun parseInput(inputPath: Path): FileSystemNode {
+    val lines = inputPath.toFile().readLines()
     val fsHead = FileSystemNode("/", null, mutableMapOf(), false)
     var cur = fsHead
     lines.forEach {
@@ -53,4 +48,27 @@ private fun parseInput(): FileSystemNode {
         }
     }
     return fsHead
+}
+
+fun part1(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+private fun process2(input: FileSystemNode): Int {
+    val sizes = mutableListOf<Int>()
+
+    getSizeAndAddToListIfFolder(input, sizes)
+
+    val totalDiskSpace = 70000000
+    val amountNeeded = 30000000
+    val unused = totalDiskSpace - sizes.max()
+    val needToDelete = amountNeeded - unused
+
+    return sizes.sorted().first { it >= needToDelete }
+}
+
+fun part2(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process2(input)
 }
