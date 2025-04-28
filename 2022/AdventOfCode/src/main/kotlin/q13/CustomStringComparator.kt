@@ -1,23 +1,6 @@
 package q13
 
-import java.io.File
 import kotlin.math.min
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
-
-val valuesToAdd = listOf("[[2]]", "[[6]]")
-
-private fun process(input: List<String>): Int {
-    return input.sortedWith(CustomStringComparator())
-        .asReversed()
-        .mapIndexed { index, s -> index + 1 to s }
-        .filter { valuesToAdd.contains(it.second) }
-        .map { it.first }
-        .reduce { a, b -> a * b }
-}
 
 class CustomStringComparator : Comparator<String> {
     override fun compare(first: String, second: String): Int {
@@ -94,11 +77,3 @@ private fun getList(s: String): List<String> {
 }
 
 
-private fun parseInput(): List<String> {
-    val originalList = File("src/main/resources/q13.txt")
-        .readLines()
-        .filter { it.isNotEmpty() }
-        .toMutableList()
-    valuesToAdd.forEach { originalList.add(it) }
-    return originalList
-}
