@@ -1,39 +1,17 @@
 package q12
 
-import java.io.File
 import java.nio.file.Path
 
 private fun process(maze: List<List<Char>>): Int {
-    val q = ArrayDeque<Triple<Int, Int, Int>>()
-    q.add(getStart(maze))
-    val visited = mutableSetOf<Pair<Int, Int>>()
-    while (q.isNotEmpty()) {
-        val (row, col, dist) = q.removeFirst()
-
-        if (maze[row][col] == 'E') {
-            return dist
-        }
-
-        if (row to col in visited) {
-            continue
-        }
-
-        visited.add(row to col)
-
-        for (neigh in getNeighs(maze, row, col)) {
-            q.add(Triple(neigh.first, neigh.second, dist + 1))
-        }
-
-    }
-
-    return Int.MAX_VALUE
+    val start = getStart(maze)
+    return getDist(maze, start)
 }
 
-private fun getStart(maze: List<List<Char>>): Triple<Int, Int, Int> {
+private fun getStart(maze: List<List<Char>>): Pair<Int, Int> {
     for (i in maze.indices) {
         for (j in maze[i].indices) {
             if (maze[i][j] == 'S') {
-                return Triple(i, j, 0)
+                return Pair(i, j)
             }
         }
     }
@@ -55,9 +33,9 @@ private fun getNeighs(maze: List<List<Char>>, row: Int, col: Int): List<Pair<Int
 
 private fun getElevation(maze: List<List<Char>>, row: Int, col: Int): Int {
     return when (val char = maze[row][col]) {
-        'S' -> 'a'.toInt()
-        'E' -> 'z'.toInt()
-        else -> char.toInt()
+        'S' -> 'a'.code
+        'E' -> 'z'.code
+        else -> char.code
     }
 }
 
@@ -79,7 +57,7 @@ fun part1(inputPath: Path): Int {
 
 private fun process2(maze: List<List<Char>>): Int {
     val starts = getAllStarts(maze)
-    return starts.map { getDist(maze, it) }.min()
+    return starts.minOf { getDist(maze, it) }
 }
 
 private fun getAllStarts(maze: List<List<Char>>): List<Pair<Int, Int>> {
