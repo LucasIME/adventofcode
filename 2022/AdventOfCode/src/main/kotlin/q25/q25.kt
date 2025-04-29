@@ -1,12 +1,7 @@
 package q25
 
-import java.io.File
+import java.nio.file.Path
 import kotlin.math.max
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
 
 private fun process(input: List<String>): String {
     return input.reduce(::sumSnafu)
@@ -65,7 +60,12 @@ private fun fromSnafu(c: Char): Int {
     }
 }
 
-private fun parseInput(): List<String> {
-    return File("src/main/resources/q25.txt")
+private fun parseInput(inputPath: Path): List<String> {
+    return inputPath.toFile()
         .readLines()
+}
+
+fun part1(inputPath: Path): String {
+    val input = parseInput(inputPath)
+    return process(input)
 }
