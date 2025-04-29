@@ -1,12 +1,12 @@
 package q16
 
+import com.google.common.collect.Sets
 import java.io.File
+import java.nio.file.Path
 import java.util.PriorityQueue
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
 
 private fun process(graph: Map<String, NodeInfo>): Int {
     val maxRounds = 30
@@ -110,9 +110,9 @@ private fun dikjstra(graph: Map<String, NodeInfo>, source: String): Map<String, 
     return nodeDist
 }
 
-private fun parseInput(): Map<String, NodeInfo> {
+private fun parseInput(inputPath: Path): Map<String, NodeInfo> {
     val resp: MutableMap<String, NodeInfo> = mutableMapOf()
-    File("src/main/resources/q16.txt")
+    inputPath.toFile()
         .readLines()
         .forEach {
             val nodeName = it.substring(6, 8)
@@ -122,4 +122,61 @@ private fun parseInput(): Map<String, NodeInfo> {
             resp[nodeName] = NodeInfo(nodeVal, neighNames)
         }
     return resp
+}
+
+fun part1(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+private fun process2(graph: Map<String, NodeInfo>): Int {
+    val maxRounds = 26
+    val reachabilityGraph = buildReachabilityMatrix(graph)
+
+    // We want to remove the zero flow nodes to reduce problem space
+    val nodesWeWantToVisit = graph.map { it.key }.toMutableSet()
+    for ((nodeName, nodeInfo) in graph) {
+        if (nodeInfo.flow == 0) {
+            nodesWeWantToVisit.remove(nodeName)
+        }
+    }
+
+    val executorService = Executors.newFixedThreadPool(16)
+    val futuresList = mutableListOf<Future<*>>()
+    val lock = Any()
+
+    var maxScore = 0
+
+    for (groupSize in 0..nodesWeWantToVisit.size / 2) {
+        val possibleCombinations = Sets.combinations(nodesWeWantToVisit, groupSize)
+        for (nodesForMeToVisit in possibleCombinations) {
+            val elephantNodesToVisit = Sets.difference(nodesWeWantToVisit, nodesForMeToVisit)
+
+            futuresList.add(
+                executorService.submit {
+                    val humanScore = solve(reachabilityGraph, graph, "AA", 0, 0, 0, nodesForMeToVisit, maxRounds)
+                    val elephantScore = solve(reachabilityGraph, graph, "AA", 0, 0, 0, elephantNodesToVisit, maxRounds)
+
+                    synchronized(lock) {
+                        if (humanScore + elephantScore > maxScore) {
+                            maxScore = humanScore + elephantScore
+                        }
+
+                    }
+                }
+            )
+        }
+    }
+
+    for (future in futuresList) {
+        future.get()
+    }
+    executorService.shutdown()
+
+    return maxScore
+}
+
+fun part2(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process2(input)
 }

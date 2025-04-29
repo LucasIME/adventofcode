@@ -2,4 +2,6 @@
 .idea/modules.xml
 .idea/misc.xml
 .idea/libraries
+.gradle/
 out/
+build/

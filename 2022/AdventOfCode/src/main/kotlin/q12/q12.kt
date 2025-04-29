@@ -1,15 +1,81 @@
 package q12
 
-import java.io.File
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
+import java.nio.file.Path
 
 private fun process(maze: List<List<Char>>): Int {
+    val start = getStart(maze)
+    return getDist(maze, start)
+}
+
+private fun getStart(maze: List<List<Char>>): Pair<Int, Int> {
+    for (i in maze.indices) {
+        for (j in maze[i].indices) {
+            if (maze[i][j] == 'S') {
+                return Pair(i, j)
+            }
+        }
+    }
+    throw Exception("Didn't find start")
+}
+
+private fun getNeighs(maze: List<List<Char>>, row: Int, col: Int): List<Pair<Int, Int>> {
+    val dirs = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
+    val resp = mutableListOf<Pair<Int, Int>>()
+    for ((dr, dc) in dirs) {
+        if (isValid(maze, row + dr, col + dc)
+            && (getElevation(maze, row + dr, col + dc) - getElevation(maze, row, col) <= 1)) {
+            resp.add(row + dr to col + dc)
+        }
+    }
+
+    return resp
+}
+
+private fun getElevation(maze: List<List<Char>>, row: Int, col: Int): Int {
+    return when (val char = maze[row][col]) {
+        'S' -> 'a'.code
+        'E' -> 'z'.code
+        else -> char.code
+    }
+}
+
+private fun isValid(maze: List<List<Char>>, row: Int, col: Int): Boolean {
+    return row >= 0 && row < maze.size && col >= 0 && col < maze[row].size
+}
+
+
+private fun parseInput(inputPath: Path): List<List<Char>> {
+    return inputPath.toFile()
+        .readLines()
+        .map { it.toList() }
+}
+
+fun part1(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+private fun process2(maze: List<List<Char>>): Int {
+    val starts = getAllStarts(maze)
+    return starts.minOf { getDist(maze, it) }
+}
+
+private fun getAllStarts(maze: List<List<Char>>): List<Pair<Int, Int>> {
+    val resp = mutableListOf<Pair<Int, Int>>()
+    for (i in maze.indices) {
+        for (j in maze[i].indices) {
+            if (maze[i][j] == 'S' || maze[i][j] == 'a') {
+                resp.add(i to j)
+            }
+        }
+    }
+
+    return resp
+}
+
+private fun getDist(maze: List<List<Char>>, start: Pair<Int, Int>): Int {
     val q = ArrayDeque<Triple<Int, Int, Int>>()
-    q.add(getStart(maze))
+    q.add(Triple(start.first, start.second, 0))
     val visited = mutableSetOf<Pair<Int, Int>>()
     while (q.isNotEmpty()) {
         val (row, col, dist) = q.removeFirst()
@@ -33,45 +99,7 @@ private fun process(maze: List<List<Char>>): Int {
     return Int.MAX_VALUE
 }
 
-private fun getStart(maze: List<List<Char>>): Triple<Int, Int, Int> {
-    for (i in maze.indices) {
-        for (j in maze[i].indices) {
-            if (maze[i][j] == 'S') {
-                return Triple(i, j, 0)
-            }
-        }
-    }
-    throw Exception("Didn't find start")
-}
-
-private fun getNeighs(maze: List<List<Char>>, row: Int, col: Int): List<Pair<Int, Int>> {
-    val dirs = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
-    val resp = mutableListOf<Pair<Int, Int>>()
-    for ((dr, dc) in dirs) {
-        if (isValid(maze, row + dr, col + dc)
-            && (getElevation(maze, row + dr, col + dc) - getElevation(maze, row, col) <= 1)) {
-            resp.add(row + dr to col + dc)
-        }
-    }
-
-    return resp
-}
-
-private fun getElevation(maze: List<List<Char>>, row: Int, col: Int): Int {
-    return when (val char = maze[row][col]) {
-        'S' -> 'a'.toInt()
-        'E' -> 'z'.toInt()
-        else -> char.toInt()
-    }
-}
-
-private fun isValid(maze: List<List<Char>>, row: Int, col: Int): Boolean {
-    return row >= 0 && row < maze.size && col >= 0 && col < maze[row].size
-}
-
-
-private fun parseInput(): List<List<Char>> {
-    return File("src/main/resources/q12.txt")
-        .readLines()
-        .map { it.toList() }
+fun part2(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process2(input)
 }

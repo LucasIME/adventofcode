@@ -1,12 +1,8 @@
 package q13
 
 import java.io.File
+import java.nio.file.Path
 import kotlin.math.min
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
 
 private fun process(input: List<List<String>>): Int {
     return input.mapIndexed { i, s -> i to isInRightOrder(s[0], s[1]) }
@@ -87,8 +83,38 @@ private fun getList(s: String): List<String> {
     return resp
 }
 
-private fun parseInput(): List<List<String>> {
-    return File("src/main/resources/q13.txt")
+private fun parseInput(inputPath: Path): List<List<String>> {
+    return inputPath.toFile()
         .readLines()
         .chunked(3)
+}
+
+fun part1(inputPath: Path): Int {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+val valuesToAdd = listOf("[[2]]", "[[6]]")
+
+private fun process2(input: List<String>): Int {
+    return input.sortedWith(CustomStringComparator())
+        .asReversed()
+        .mapIndexed { index, s -> index + 1 to s }
+        .filter { valuesToAdd.contains(it.second) }
+        .map { it.first }
+        .reduce { a, b -> a * b }
+}
+
+private fun parseInput2(inputPath: Path): List<String> {
+    val originalList = inputPath.toFile()
+        .readLines()
+        .filter { it.isNotEmpty() }
+        .toMutableList()
+    valuesToAdd.forEach { originalList.add(it) }
+    return originalList
+}
+
+fun part2(inputPath: Path): Int {
+    val input = parseInput2(inputPath)
+    return process2(input)
 }

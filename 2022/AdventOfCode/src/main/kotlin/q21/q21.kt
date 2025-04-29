@@ -1,12 +1,8 @@
 package q21
 
 import java.io.File
+import java.nio.file.Path
 import java.util.stream.Collectors
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
 
 private fun process(input: Map<String, List<String>>): Long {
     return get(input, "root")
@@ -32,8 +28,8 @@ private fun get(input: Map<String, List<String>>, node: String): Long {
     }
 }
 
-private fun parseInput(): Map<String, List<String>> {
-    return File("src/main/resources/q21.txt")
+private fun parseInput(inputPath: Path): Map<String, List<String>> {
+    return inputPath.toFile()
         .readLines()
         .stream()
         .collect(Collectors.toMap({
@@ -41,3 +37,10 @@ private fun parseInput(): Map<String, List<String>> {
 
         }, { it.split(": ")[1].split(" ") }))
 }
+
+fun part1(inputPath: Path): Long {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+

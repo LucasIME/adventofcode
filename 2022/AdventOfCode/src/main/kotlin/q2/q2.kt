@@ -1,12 +1,7 @@
 package q2
 
-import java.io.File
+import java.nio.file.Path
 
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
 
 private fun process(input: List<List<Move>>): Long {
     var score = 0L
@@ -34,7 +29,44 @@ private fun getScore(opponent: Move, you: Move): Long {
     return 0
 }
 
-private fun parseInput(): List<List<Move>> {
-    val f = File("src/main/resources/q2.txt")
-    return f.readLines().map { it.split(" ").map { s -> Move.toMove(s) } }
+private fun parseInput(filePath: Path): List<List<Move>> {
+    return filePath.toFile().readLines().map { it.split(" ").map { s -> Move.toMove(s) } }
+}
+
+fun part1(inputPath: Path): Long {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+private fun process2(input: List<List<String>>): Long {
+    var score = 0L
+
+    input.forEach {
+        val opponent = Move.toMove(it[0])
+        val youOutcome = Outcome.toOutcome(it[1])
+        val youMove = getMoveToOutcome(opponent, youOutcome)
+
+        score += Move.getScore(youMove) + Outcome.getScore(youOutcome)
+    }
+
+    return score
+}
+
+private fun getMoveToOutcome(opponent: Move, youOutcome: Outcome): Move {
+    return when (youOutcome) {
+        Outcome.DRAW -> opponent
+        Outcome.WIN -> Move.getWinMoveAgainst(opponent)
+        Outcome.LOSE -> Move.getLoseMoveAgainst(opponent)
+    }
+}
+
+private fun parseInput2(filePath: Path): List<List<String>> {
+    return filePath.toFile().readLines().map {
+        it.split(" ")
+    }
+}
+
+fun part2(inputPath: Path): Long {
+    val input = parseInput2(inputPath)
+    return process2(input)
 }

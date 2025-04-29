@@ -1,12 +1,8 @@
 package q5
 
 import java.io.File
+import java.nio.file.Path
 import java.util.Stack
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
 
 private fun process(game: Game): String {
     var stacks = game.stacks
@@ -28,8 +24,8 @@ private fun joinTopElements(stacks: List<Stack<Char>>): String {
     return stacks.map { it.peek() }.joinToString("")
 }
 
-private fun parseInput(): Game {
-    val f = File("src/main/resources/q5.txt")
+private fun parseInput(inputPath: Path): Game {
+    val f = inputPath.toFile()
 
     val fileText = f.readText()
     val splits = fileText.split("\n\n")
@@ -64,4 +60,34 @@ private fun <T> reverseStack(s: Stack<T>): Stack<T> {
     val out: Stack<T> = Stack()
     s.reversed().forEach { out.push(it) }
     return out
+}
+
+fun part1(inputPath: Path) : String {
+    val input = parseInput(inputPath)
+    return process(input)
+}
+
+private fun process2(game: Game): String {
+    var stacks = game.stacks
+    for (move in game.moves) {
+        stacks = updateStacks2(stacks, move)
+    }
+    return joinTopElements(stacks)
+}
+
+private fun updateStacks2(stacks: List<Stack<Char>>, move: Triple<Int, Int, Int>): List<Stack<Char>> {
+    val tempStack = Stack<Char>()
+    for (i in 1..move.first) {
+        tempStack.push(stacks[move.second - 1].pop())
+    }
+    for (i in 1..move.first) {
+        stacks[move.third - 1].push(tempStack.pop())
+    }
+
+    return stacks
+}
+
+fun part2(inputPath: Path) : String {
+    val input = parseInput(inputPath)
+    return process2(input)
 }

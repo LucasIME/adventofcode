@@ -1,12 +1,8 @@
 package q1
 
-import java.io.File
+import java.nio.file.Path
+import java.util.PriorityQueue
 import kotlin.math.max
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
 
 private fun process(input: List<String>): Long {
     var maxSoFar = Long.MIN_VALUE
@@ -24,7 +20,29 @@ private fun process(input: List<String>): Long {
     return maxSoFar
 }
 
-private fun parseInput(): List<String> {
-    val f = File("src/main/resources/q1.txt")
-    return f.readLines()
+fun part1(inputPath: Path): Long {
+    val input = inputPath.toFile().readLines()
+    return process(input)
+}
+
+private fun process2(input: List<String>): Long {
+    val heap = PriorityQueue(Comparator.naturalOrder<Long?>().reversed())
+    var curVal = 0L
+    input.spliterator()
+
+    input.forEach {
+        if (it == "") {
+            heap.add(curVal)
+            curVal = 0
+        } else {
+            curVal += Integer.parseInt(it)
+        }
+    }
+
+    return heap.poll() + heap.poll() + heap.poll()
+}
+
+fun part2(inputPath: Path): Long {
+    val input = inputPath.toFile().readLines()
+    return process2(input)
 }
