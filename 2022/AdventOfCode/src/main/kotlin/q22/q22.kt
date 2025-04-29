@@ -1,11 +1,7 @@
 package q22
 
 import java.io.File
-
-fun main() {
-    val input = parseInput()
-    println(process(input))
-}
+import java.nio.file.Path
 
 private fun process(input: Pair<List<List<Char>>, List<String>>): Int {
     val map = input.first
@@ -122,9 +118,8 @@ private fun getStartPosition(map: List<List<Char>>): Pair<Int, Int> {
     throw Exception("Didn't find dot in first row")
 }
 
-private fun parseInput(): Pair<List<List<Char>>, List<String>> {
-    val allLines = File("src/main/resources/q22.txt")
-        .readLines()
+private fun parseInput(inputPath: Path): Pair<List<List<Char>>, List<String>> {
+    val allLines = inputPath.toFile().readLines()
     val rawMap = allLines.subList(0, allLines.size - 2)
     val nRows = rawMap.size
     val nCols = rawMap.maxOf { it.length }
@@ -163,4 +158,10 @@ private fun toCommands(rawCommands: String): List<String> {
     }
 
     return resp
+}
+
+
+fun part1(inputPath: Path) : Int {
+    val input = parseInput(inputPath)
+    return process(input)
 }
