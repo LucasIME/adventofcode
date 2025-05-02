@@ -102,7 +102,7 @@ private fun parseInput(inputPath: Path): Entry {
     return Entry(start = start, goal = end, grid = grid)
 }
 
-fun isValid(position: Position, grid: Grid, time: Long): Boolean {
+fun isValid(position: Position, grid: Grid): Boolean {
     if (position == Position(0, 1)
         || position == Position(grid.rows - 1, grid.cols - 2)) return true
 
@@ -110,8 +110,8 @@ fun isValid(position: Position, grid: Grid, time: Long): Boolean {
         return false
     }
 
-    val curBlizz = grid.blizzards.map { it.after(time, grid) }
-    val hitBlizz = curBlizz.any { it.position == position }
+    val possibleHittingBlizz = grid.blizzards.filter { it.position.row == position.row || it.position.col == position.col }
+    val hitBlizz = possibleHittingBlizz.any { it.position == position }
 
     return !hitBlizz
 }
@@ -119,7 +119,11 @@ fun isValid(position: Position, grid: Grid, time: Long): Boolean {
 fun getValidNeighs(position: Position, grid: Grid, time: Long): List<Position> {
     val directions = Direction.entries
     val rawNeighs = directions.map { nextPos(position, it) }
-    return (rawNeighs + position).filter { isValid(it, grid, time) }
+
+    val futureBlizzards = grid.blizzards.map { it.after(time, grid) }.toSet()
+    val futureGrid = grid.copy(blizzards = futureBlizzards)
+
+    return (rawNeighs + position).filter { isValid(it, futureGrid) }
 }
 
 fun getTimeDist(entry: Entry, timeStart: Long): Long {
