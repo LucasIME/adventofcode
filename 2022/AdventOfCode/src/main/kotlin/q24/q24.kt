@@ -21,26 +21,37 @@ private fun nextPos(pos: Position, direction: Direction): Position {
 }
 
 data class Blizzard(val position: Position, val direction: Direction) {
-    fun next(grid: Grid): Blizzard {
-        val rawNextPos = nextPos(position, direction)
+    fun next(grid: Grid, time: Int): Blizzard {
+        val h = grid.rows - 2
+        val w = grid.cols - 2
 
-        if (rawNextPos.row == 0) {
-            return Blizzard(position = Position(row = grid.rows - 2, col = rawNextPos.col), direction)
+        var nextRow = position.row
+        var nextCol = position.col
+
+        when (direction) {
+            Direction.UP -> {
+                val relativeRow = position.row - 1
+                val nextRelativeRow = ((relativeRow - time) % h + h) % h
+                nextRow = nextRelativeRow + 1
+            }
+            Direction.DOWN -> {
+                val relativeRow = position.row - 1
+                val nextRelativeRow = ((relativeRow + time) % h + h) % h
+                nextRow = nextRelativeRow + 1
+            }
+            Direction.LEFT -> {
+                val relativeCol = position.col - 1
+                val nextRelativeCol = ((relativeCol - time) % w + w) % w
+                nextCol = nextRelativeCol + 1
+            }
+            Direction.RIGHT -> {
+                val relativeCol = position.col - 1
+                val nextRelativeCol = ((relativeCol + time) % w + w) % w
+                nextCol = nextRelativeCol + 1
+            }
         }
 
-        if (rawNextPos.row == grid.rows - 1) {
-            return Blizzard(position = Position(row = 1, col = rawNextPos.col), direction)
-        }
-
-        if (rawNextPos.col == 0) {
-            return Blizzard(position = Position(row = rawNextPos.row, col = grid.cols - 2), direction)
-        }
-
-        if (rawNextPos.col == grid.cols - 1) {
-            return Blizzard(position = Position(row = rawNextPos.row, col = 1), direction)
-        }
-
-        return Blizzard(position = rawNextPos, direction)
+        return Blizzard(position = Position(row = nextRow, col = nextCol), direction)
     }
 
     fun after(time: Long, grid: Grid): Blizzard {
@@ -50,13 +61,7 @@ data class Blizzard(val position: Position, val direction: Direction) {
         }
 
         val extras = time % edgeLength
-
-        var cur = this
-        for (i in 0 until extras) {
-            cur = cur.next(grid)
-        }
-
-        return cur
+        return this.next(grid, extras.toInt())
     }
 }
 
