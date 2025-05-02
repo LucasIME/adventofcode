@@ -68,7 +68,7 @@ data class Blizzard(val position: Position, val direction: Direction) {
 data class Grid(
     val rows: Int,
     val cols: Int,
-    val blizzards: Set<Blizzard>,
+    val blizzards: List<Blizzard>,
 )
 
 data class Entry(
@@ -86,7 +86,7 @@ private fun parseInput(inputPath: Path): Entry {
     val endCol = lines.last().withIndex().first { it.value == '.' }.index
     val end = Position(row = lines.size - 1, col = endCol)
 
-    val blizzards = mutableSetOf<Blizzard>()
+    val blizzards = mutableListOf<Blizzard>()
     lines.withIndex().forEach { line ->
         line.value.withIndex().forEach { col ->
 
@@ -125,7 +125,7 @@ fun getValidNeighs(position: Position, grid: Grid, time: Long): List<Position> {
     val directions = Direction.entries
     val rawNeighs = directions.map { nextPos(position, it) }
 
-    val futureBlizzards = grid.blizzards.map { it.after(time, grid) }.toSet()
+    val futureBlizzards = grid.blizzards.map { it.after(time, grid) }
     val futureGrid = grid.copy(blizzards = futureBlizzards)
 
     return (rawNeighs + position).filter { isValid(it, futureGrid) }
