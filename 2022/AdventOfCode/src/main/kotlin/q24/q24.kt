@@ -122,9 +122,9 @@ fun getValidNeighs(position: Position, grid: Grid, time: Long): List<Position> {
     return (rawNeighs + position).filter { isValid(it, grid, time) }
 }
 
-fun process(entry: Entry): Long {
+fun getTimeDist(entry: Entry, timeStart: Long): Long {
     val queue = ArrayDeque<Pair<Position, Long>>()
-    queue.add(entry.start to 0L)
+    queue.add(entry.start to timeStart)
     val visited = mutableSetOf<Pair<Position, Long>>()
 
     while (!queue.isEmpty()) {
@@ -147,7 +147,27 @@ fun process(entry: Entry): Long {
     throw Exception("No path possible")
 }
 
+fun process(entry: Entry): Long {
+    return getTimeDist(entry, 0)
+}
+
 fun part1(inputPath: Path): Long {
     val input = parseInput(inputPath)
     return process(input)
+}
+
+fun process2(entry: Entry): Long {
+    val timeThere = getTimeDist(entry, 0L)
+    val timeBack = getTimeDist(entry.copy(
+        start = entry.goal,
+        goal = entry.start,
+    ), timeThere)
+    val thereAgain = getTimeDist(entry, timeBack)
+
+    return thereAgain
+}
+
+fun part2(inputPath: Path): Long {
+    val input = parseInput(inputPath)
+    return process2(input)
 }
