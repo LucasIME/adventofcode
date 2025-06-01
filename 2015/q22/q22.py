@@ -95,11 +95,19 @@ class State:
         return new_state
 
 
-def play(initial_state: State):
+def play(initial_state: State, hard=False):
     queue = [initial_state]
 
     while queue:
         cur_state = heapq.heappop(queue)
+
+        if cur_state.is_boss_dead():
+            return cur_state
+
+        if hard:
+            cur_state.player.hp -= 1
+            if cur_state.is_player_dead():
+                continue
 
         cur_state = cur_state.apply_active_spells()
 
@@ -133,7 +141,7 @@ def process(file_name, player_hp=50, player_mana=500):
     boss = Entity(hp=boss_hp, mana=0, dmg=boss_dmg)
 
     initial_state = State(player=player, boss=boss)
-    state = play(initial_state)
+    state = play(initial_state, hard=True)
 
     return state.mana_spent
 
