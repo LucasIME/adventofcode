@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Aoc2025/Aoc2025.fsproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Aoc2025.Tests/Aoc2025.Tests.fsproj" />
+  </Folder>
+</Solution>
