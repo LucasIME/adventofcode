@@ -1,0 +1,61 @@
+## Build output
+bin/
+obj/
+out/
+artifacts/
+TestResults/
+
+## Visual Studio / VS Code
+.vs/
+.vscode/*.suo
+.vscode/*.user
+*.user
+*.suo
+
+## Paket
+.paket/
+paket-files/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+## Logs
+*.log
+
+## IDE temp files
+*.tmp
+*.temp
+*.DS_Store
+Thumbs.db
+
+## JetBrains Rider
+.idea/
+
+## Coverage tools
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+
+## dotnet tools
+.dotnet/
+tools/
+tools.config
+
+## Local settings
+appsettings.Development.json
+appsettings.Local.json
+
+## Python/other misc (sometimes used for AoC)
+*.pyc
+__pycache__/
+
+## F# script cache
+.fsac/
+.fsi/
+.fscache/
+ionide.json
+
