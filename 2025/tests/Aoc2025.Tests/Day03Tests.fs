@@ -15,4 +15,4 @@ module Day03Tests =
     let ``Part 1 Test`` () =
         let input = System.IO.File.ReadAllText("resources/day03/input.txt")
         let result = Day03.part1 input
-        Assert.Equal(-1, result)
+        Assert.Equal(17229, result)
