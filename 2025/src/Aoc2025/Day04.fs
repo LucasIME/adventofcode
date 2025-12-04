@@ -17,12 +17,9 @@ module Day04 =
 
         let paperNeighs = neighSymbols |> List.filter (fun c -> c = '@')
 
-        paperNeighs.Length < 4
+        paperNeighs.Length < 4 && ch = '@'
 
-    let part1 (input: string) =
-        let lines = input.Split('\n')
-        let grid = lines |> Array.map Seq.toArray
-
+    let countAccessible(grid) =
         let coords = 
             grid 
             |> Array.mapi (fun rowIndex row -> 
@@ -32,6 +29,29 @@ module Day04 =
 
         let accessible = 
             coords 
-                |> Array.filter (fun (row, col, ch) -> isAccessible grid (row, col, ch) && ch = '@')
+                |> Array.filter (fun pos -> isAccessible grid pos )
 
         accessible |> Array.length
+
+
+    let part1 (input: string) =
+        let lines = input.Split('\n')
+        let grid = lines |> Array.map Seq.toArray
+
+        countAccessible grid
+
+    let rec clean grid : int =
+        let acessible = countAccessible grid
+
+        let nextGrid = 
+            grid
+                |>  Array.mapi (fun rowIndex row -> 
+                    row |> Array.mapi (fun colIndex ch -> 
+                        if isAccessible grid (rowIndex, colIndex, ch) then '.' else ch))
+
+        if acessible = 0 then 0 else acessible + clean nextGrid
+
+    let part2 (input: string) = 
+        let lines = input.Split('\n')
+        let grid = lines |> Array.map Seq.toArray
+        clean grid
