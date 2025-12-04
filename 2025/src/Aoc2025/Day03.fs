@@ -6,10 +6,10 @@ module Day03 =
             bank |> Array.max |> int64
         else
             let prefix = bank |> Array.take (bank.Length - digits + 1)
-            let (rightmostBiggestDigit, rightmostBiggestDigitIndex) = 
-                prefix |> Array.mapi (fun i v -> v, i) |> Array.maxBy fst
-            let baseNum = rightmostBiggestDigit * (pown 10L (digits - 1)) 
-            baseNum + (joltage (digits - 1) bank[rightmostBiggestDigitIndex+1..])
+            let (leftmostBiggestDigit, leftmostBiggestDigitIndex) = 
+                prefix |> Array.mapi (fun i v -> v, i) |> Array.maxBy (fun (v, i) -> (v, -i))
+            let baseNum = leftmostBiggestDigit * (pown 10L (digits - 1)) 
+            baseNum + (joltage (digits - 1) bank[leftmostBiggestDigitIndex+1..])
 
     let solve (input: string) n =
         let lines = input.Split('\n')
