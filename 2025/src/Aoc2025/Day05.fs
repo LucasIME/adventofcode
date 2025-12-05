@@ -31,3 +31,34 @@ module Day05 =
     let part1 (input: string) =
         let (ranges, ingredients) = parse input
         solve ranges ingredients
+
+    let canMerge (range1: Range, range2: Range) : bool =
+        let (min1, max1) = range1
+        let (min2, max2) = range2
+        (min1 >= min2 && min1 <= max2) || (min2 >= min1 && min2 <= max1)
+
+    let mergeRange (range1: Range, range2: Range) : Range =
+        let (min1, max1) = range1
+        let (min2, max2) = range2
+        (min min1 min2, max max1 max2)
+
+    let rec mergeIntervals (sortedIntervals: Range list) : Range list =
+        match sortedIntervals with
+        | [] -> []
+        | [ head] -> [ head]
+        | head :: next :: tail ->
+            if canMerge(head, next) then
+                let merged = mergeRange(head, next)
+                mergeIntervals(merged :: tail)
+            else
+                head :: mergeIntervals(next :: tail)
+
+    let allValid (ranges: Range array) : int64 =
+        let sortedRanges = Array.sort ranges |> Array.toList
+        let mergedIntervals = mergeIntervals sortedRanges
+
+        mergedIntervals |> List.sumBy (fun (min, max) -> int64 (max - min + 1L))
+
+    let part2 (input: string) =
+        let (ranges, ingredients) = parse input
+        allValid ranges
