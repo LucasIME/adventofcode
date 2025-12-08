@@ -80,3 +80,39 @@ module Day08 =
         let threeCount = threeLargest |> List.map (fun (pos, count) -> count)
 
         threeCount |> List.reduce (*)
+
+
+    let part2 (input: string) =
+        let positions = 
+            input.Split('\n') |> Array.map (fun line -> 
+                let parts = line.Split(',')
+                (int64 parts.[0], int64 parts.[1], int64 parts.[2])
+        )
+
+        let posPairs = positions |> Array.toList |> pairs
+
+        let closestPairs = 
+            List.sortBy (fun (p1, p2) -> dist p1 p2) posPairs 
+
+        let unionFind = UnionFind<Pos>()
+
+
+        let mutable lastP1 : Pos = (0, 0 ,0)
+        let mutable lastP2 : Pos = (0, 0 ,0)
+        Seq.takeWhile (fun (p1, p2) -> 
+            unionFind.Union(p1, p2)
+
+            let distinctSets =  positions |> Array.map unionFind.Find |> Array.distinct |> Array.length
+
+            lastP1 <- p1
+            lastP2 <- p2
+
+            distinctSets <> 1
+        ) closestPairs
+        |> Seq.toList
+        |> ignore
+
+        let (x1, _, _) = lastP1
+        let (x2, _, _) = lastP2
+
+        x1 * x2
