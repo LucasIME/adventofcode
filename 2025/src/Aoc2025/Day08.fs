@@ -80,12 +80,3 @@ module Day08 =
         let threeCount = threeLargest |> List.map (fun (pos, count) -> count)
 
         threeCount |> List.reduce (*)
-
-
-
-
-
-
-
-        
-
