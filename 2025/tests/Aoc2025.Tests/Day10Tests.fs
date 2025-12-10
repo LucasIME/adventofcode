@@ -11,8 +11,8 @@ module Day10Tests =
         let result = Day10.part1 input
         Assert.Equal(7L, result)
 
-    // [<Fact>]
-    // let ``Part 1 Test`` () =
-    //     let input = System.IO.File.ReadAllText("resources/day10/input.txt")
-    //     let result = Day10.part1 input
-    //     Assert.Equal( -1L, result)
+    [<Fact>]
+    let ``Part 1 Test`` () =
+        let input = System.IO.File.ReadAllText("resources/day10/input.txt")
+        let result = Day10.part1 input
+        Assert.Equal( 396L, result)

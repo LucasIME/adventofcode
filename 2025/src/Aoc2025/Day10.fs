@@ -1,5 +1,7 @@
 namespace Aoc2025
 
+open System.Collections.Generic
+
 module Day10 =
     type Buttons = int64 array
     type Machine =
@@ -21,7 +23,9 @@ module Day10 =
     let parseSingleButton (buttonStr: string) : Buttons =
         let buttonStrWithoutParenthesis = buttonStr.Trim([|'('; ')'|])
         let rawDigits = buttonStrWithoutParenthesis.Split(',')
-        rawDigits |> Seq.map (fun c -> int64 c - int64 '0') |> Seq.toArray
+        rawDigits 
+            |> Seq.map int64
+            |> Seq.toArray
 
     let parseButtons (buttonsStrs: string array) : Buttons array =
         buttonsStrs
@@ -29,7 +33,10 @@ module Day10 =
 
     let parseCosts (costStr: string) : int64 array =
         let costStrWithoutCurly = costStr.Trim([|'{'; '}'|])  
-        costStrWithoutCurly |> Seq.map (fun c -> int64 c - int64 '0') |> Seq.toArray
+        let rawCosts = costStrWithoutCurly.Split(',')
+        rawCosts
+            |> Seq.map int64
+            |> Seq.toArray
 
     let parseLine (line: string) : Machine =
         let spacesplitr = line.Split(' ')
@@ -47,7 +54,56 @@ module Day10 =
         let rawLines = input.Split('\n')
         rawLines |> Array.map parseLine |> Array.toList
 
+    let flipValue value = 
+        match value with
+            | 1L -> 0L
+            | 0L -> 1L
+            | _ -> failwith "unexpected value"
+
+    let getStateAfterPress (state: int64 array, button: Buttons) : int64 array =
+        let newState = Array.copy state
+
+        button |> Array.iter (fun pos -> 
+            let newValue = flipValue state.[int pos]
+            newState.[int pos] <- newValue
+        )
+
+        newState
+
+    let getNeighs (state: int64 array, buttons: Buttons array) : int64 array array =
+        buttons |> Array.map (fun button -> getStateAfterPress(state, button))
+
+    let bfs (machine: Machine) : int64 =
+        let visited = HashSet<int64 array>()
+        let q = Queue<int64 array * int64>()
+
+        let startPos = machine.desiredConfig |> Array.map (fun n -> 0L)
+
+        q.Enqueue(startPos, 0)
+
+        let mutable resp = -1L
+        let mutable finished: bool = false
+        while q.Count > 0 && (not finished) do
+            let pos, dist = q.Dequeue()
+            if pos = machine.desiredConfig then
+                resp <- dist
+                finished <- true
+            else
+                if not (visited.Contains(pos)) then
+                    visited.Add(pos) |> ignore
+                    let nextStates = getNeighs(pos, machine.buttons)
+                    nextStates |> Array.iter (fun nextState -> q.Enqueue(nextState, dist + 1L))
+
+        resp
+
+    let costToTarget (machine: Machine) : int64 =
+        bfs machine
+
     let part1 (input: string) =
         let machines = parse input
-        printfn "%A" machines
-        10L
+
+        let distances =
+            machines
+            |> List.map costToTarget
+
+        distances |> List.sum
