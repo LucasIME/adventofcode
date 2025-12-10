@@ -1,6 +1,7 @@
 namespace Aoc2025
 
 open System.Collections.Generic
+open Microsoft.Z3
 
 module Day10 =
     type Buttons = int64 array
@@ -8,7 +9,7 @@ module Day10 =
         {
             desiredConfig: int64 array
             buttons: Buttons array
-            costs: int64 array
+            desiredConfig2: int64 array
         }
 
     let parseConfig (configStr: string) : int64 array =
@@ -47,7 +48,7 @@ module Day10 =
         {
             desiredConfig = parseConfig rawConfig
             buttons = parseButtons rawButtons
-            costs = parseCosts rawCosts
+            desiredConfig2 = parseCosts rawCosts
         }
 
     let parse (input: string) : Machine list =
@@ -105,5 +106,56 @@ module Day10 =
         let distances =
             machines
             |> List.map costToTarget
+
+        distances |> List.sum
+
+    let costToTarget2 (machine: Machine) : int64 =
+        use ctx = new Context()
+        use optimizer = ctx.MkOptimize()
+
+        let target = machine.desiredConfig2
+        let buttons = machine.buttons
+    
+        // Declare presses
+        let presses = 
+            buttons
+            |> Array.mapi (fun i button -> ctx.MkIntConst(sprintf "x_%d" i))
+
+        // Presses >= 0
+        presses
+        |> Array.iter (fun x -> optimizer.Assert(ctx.MkGe(x, ctx.MkInt(0))) )
+
+        // Setting target state:
+        target
+            |> Array.mapi (fun targetI targetVal -> 
+                let coefficients = 
+                    buttons
+                    |> Array.mapi (fun buttonI button -> 
+                        if Array.contains (int64 targetI) button then
+                            presses.[buttonI] :> ArithExpr
+                        else
+                            ctx.MkInt(0) :> ArithExpr
+                    )
+                let sumExpr = ctx.MkAdd(coefficients)
+                optimizer.Assert(ctx.MkEq(sumExpr, ctx.MkInt(targetVal)))
+            ) |> ignore
+
+        let totalPresses = ctx.MkAdd(presses |> Array.map (fun x -> x :> ArithExpr))
+        optimizer.MkMinimize(totalPresses) |> ignore
+
+        match optimizer.Check() with
+            | Status.SATISFIABLE ->
+                let model = optimizer.Model
+                let totalPresses = presses |> Array.sumBy (fun x -> (model.Evaluate(x) :?> IntNum).Int64)
+                totalPresses
+
+            | _ -> failwith "Unsatisfiable"
+
+    let part2 (input: string) =
+        let machines = parse input
+
+        let distances =
+            machines
+            |> List.map costToTarget2
 
         distances |> List.sum
