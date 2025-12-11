@@ -63,19 +63,8 @@ module Day07 =
         let (grid , start) = parse input
         calcSplit(grid, Set.singleton start, 0)
 
-    let memoizeRec f = 
-        let cache = System.Collections.Generic.Dictionary<_, _>()
-        let rec g x =
-            match cache.TryGetValue x with
-            | (true, v) -> v
-            | _ ->
-                let v = f g x
-                cache.[x] <- v
-                v
-        g
-
     let calcTimelines = 
-        memoizeRec (fun self (grid: char array array, bean: Pos, timelines: int64) ->
+        Utils.memoizeRec (fun self (grid: char array array, bean: Pos, timelines: int64) ->
             let (r, c) = bean
             if r+1 >= grid.Length then
                 timelines

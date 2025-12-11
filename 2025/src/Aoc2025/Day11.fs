@@ -1,7 +1,5 @@
 namespace Aoc2025
 
-open System.Collections.Generic
-
 module Day11 =
     let parseLine (line: string) : (string * string) list =
         let keySplit = line.Split(": ")
@@ -22,19 +20,8 @@ module Day11 =
         
         graph
 
-    let memoizeRec f = 
-        let cache = Dictionary<_, _>()
-        let rec g x =
-            match cache.TryGetValue x with
-            | (true, v) -> v
-            | _ ->
-                let v = f g x
-                cache.[x] <- v
-                v
-        g
-
     let rec countPathsMemo (graph: Map<string, string list>) =
-        memoizeRec (fun self (start: string, target: string, hasSeenFft: bool, hasSeenDac: bool)  ->
+        Utils.memoizeRec (fun self (start: string, target: string, hasSeenFft: bool, hasSeenDac: bool)  ->
             if start = target then
                 if (hasSeenFft && hasSeenDac) then 1L else 0L
             else
