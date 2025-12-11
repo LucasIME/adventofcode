@@ -27,4 +27,4 @@ module Day11Tests =
     let ``Part 2 Test`` () =
         let input = System.IO.File.ReadAllText("resources/day11/input.txt")
         let result = Day11.part2 input
-        Assert.Equal( -1L, result)
+        Assert.Equal( 349322478796032L, result)
