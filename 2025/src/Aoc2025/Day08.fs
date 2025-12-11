@@ -33,18 +33,6 @@ module Day08 =
             else
                 parent[rootX] <- rootY
 
-    let pairs list =
-        list
-        |> List.mapi (fun i x -> 
-            list
-            |> List.mapi (fun j y -> 
-                (i, j, x, y)
-            )
-            |> List.filter (fun (i, j, _, _) -> j > i)
-            |> List.map (fun (_, _, x, y) -> (x, y))
-        )
-        |> List.concat
-
     let dist (x1, y1, z1) (x2, y2, z2) =
         let dx = x1 - x2
         let dy = y1 - y2
@@ -58,7 +46,7 @@ module Day08 =
                 (int64 parts.[0], int64 parts.[1], int64 parts.[2])
         )
 
-        let posPairs = positions |> Array.toList |> pairs
+        let posPairs = positions |> Array.toList |> Utils.pairs
 
         let closestPairs = 
             List.sortBy (fun (p1, p2) -> dist p1 p2) posPairs 
@@ -89,7 +77,7 @@ module Day08 =
                 (int64 parts.[0], int64 parts.[1], int64 parts.[2])
         )
 
-        let posPairs = positions |> Array.toList |> pairs
+        let posPairs = positions |> Array.toList |> Utils.pairs
 
         let closestPairs = 
             List.sortBy (fun (p1, p2) -> dist p1 p2) posPairs 
