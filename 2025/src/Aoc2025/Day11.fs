@@ -21,19 +21,38 @@ module Day11 =
                 |> Map.ofList
         
         graph
-    
-    let rec countPaths (graph: Map<string, string list>) (start: string) (target: string) : int64 =
-        if start = target then
-            1L
-        else
-            let neighs = graph |> Map.tryFind start |> Option.defaultValue []
-            let result = 
-                neighs 
-                |> List.sumBy (fun neighbor -> 
-                    countPaths graph neighbor target
-                )
-            result
 
+    let memoizeRec f = 
+        let cache = Dictionary<_, _>()
+        let rec g x =
+            match cache.TryGetValue x with
+            | (true, v) -> v
+            | _ ->
+                let v = f g x
+                cache.[x] <- v
+                v
+        g
+
+    let rec countPathsMemo (graph: Map<string, string list>) =
+        memoizeRec (fun self (start: string, target: string, hasSeenFft: bool, hasSeenDac: bool)  ->
+            if start = target then
+                if (hasSeenFft && hasSeenDac) then 1L else 0L
+            else
+                let neighs = graph |> Map.tryFind start |> Option.defaultValue []
+                let newHasSeenFft = hasSeenFft || (start = "fft")
+                let newHasSeenDac = hasSeenDac || (start = "dac")
+                let result = 
+                    neighs 
+                    |> List.sumBy (fun neighbor -> 
+                        self (neighbor, target, newHasSeenFft, newHasSeenDac)
+                    )
+                result
+            )
+    
     let part1 (input: string) =
         let graph = parseGraph input
-        countPaths graph "you" "out"
+        countPathsMemo graph ("you", "out", true, true)
+
+    let part2 (input: string) =
+        let graph = parseGraph input
+        countPathsMemo graph ("svr", "out", false, false)
